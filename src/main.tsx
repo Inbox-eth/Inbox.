@@ -39,10 +39,10 @@ export const config = createConfig({
   connectors: [
     injected(),
     coinbaseWallet({
-      appName: "xmtp.chat",
+      appName: import.meta.env.VITE_APP_NAME || "Inbox",
     }),
     metaMask(),
-    walletConnect({ projectId: import.meta.env.VITE_PROJECT_ID }),
+    walletConnect({ projectId: import.meta.env.VITE_PROJECT_ID || "" }),
   ],
   chains: [
     arbitrum,
