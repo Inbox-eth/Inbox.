@@ -25,24 +25,17 @@ import {
   zksyncSepoliaTestnet,
 } from "wagmi/chains";
 import {
-  coinbaseWallet,
   injected,
-  metaMask,
-  walletConnect,
 } from "wagmi/connectors";
 import { App } from "@/components/App/App";
 import { XMTPProvider } from "@/contexts/XMTPContext";
+import { PrivyProvider } from "@privy-io/react-auth";
 
 const queryClient = new QueryClient();
 
 export const config = createConfig({
   connectors: [
     injected(),
-    coinbaseWallet({
-      appName: import.meta.env.VITE_APP_NAME || "Inbox",
-    }),
-    metaMask(),
-    walletConnect({ projectId: import.meta.env.VITE_PROJECT_ID || "" }),
   ],
   chains: [
     arbitrum,
@@ -83,17 +76,19 @@ export const config = createConfig({
 });
 
 createRoot(document.getElementById("root") as HTMLElement).render(
-  <WagmiProvider config={config}>
-    <QueryClientProvider client={queryClient}>
-      <MantineProvider defaultColorScheme="auto">
-        <XMTPProvider>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
-        </XMTPProvider>
-      </MantineProvider>
-    </QueryClientProvider>
-  </WagmiProvider>,
+  <PrivyProvider appId={import.meta.env.VITE_PRIVY_APP_ID || "YOUR_PRIVY_APP_ID"}>
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <MantineProvider defaultColorScheme="auto">
+          <XMTPProvider>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </XMTPProvider>
+        </MantineProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
+  </PrivyProvider>,
 );
 
 console.log("[xmtp.chat] XMTP Browser SDK version:", pkg.version);

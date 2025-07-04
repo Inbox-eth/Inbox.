@@ -20,6 +20,7 @@
     "@mantine/hooks": "^8.0.2",
     "@mantine/modals": "^8.0.2",
     "@mantine/notifications": "^8.0.2",
+    "@privy-io/react-auth": "^2.17.3",
     "@tanstack/react-query": "^5.77.2",
     "@xmtp/browser-sdk": "^3.0.1",
     "@xmtp/content-type-group-updated": "^2.0.2",
