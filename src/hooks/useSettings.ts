@@ -3,11 +3,12 @@ import { type ClientOptions, type XmtpEnv } from "@xmtp/browser-sdk";
 import type { Hex } from "viem";
 
 export const useSettings = () => {
-  const [environment, setEnvironment] = useLocalStorage<XmtpEnv>({
-    key: "XMTP_NETWORK",
-    defaultValue: "dev",
-    getInitialValueInEffect: false,
-  });
+  // Read from .env
+  const environment: XmtpEnv = (import.meta.env.VITE_XMTP_ENV as XmtpEnv) || "dev";
+  const useSCW: boolean = import.meta.env.VITE_USE_SCW === "true";
+  const loggingLevel: ClientOptions["loggingLevel"] = (import.meta.env.VITE_LOGGING_LEVEL as ClientOptions["loggingLevel"]) || "off";
+  const disableAnalytics: boolean = import.meta.env.VITE_DISABLE_ANALYTICS === "true";
+
   const [ephemeralAccountKey, setEphemeralAccountKey] =
     useLocalStorage<Hex | null>({
       key: "XMTP_EPHEMERAL_ACCOUNT_KEY",
@@ -26,20 +27,8 @@ export const useSettings = () => {
       getInitialValueInEffect: false,
     },
   );
-  const [loggingLevel, setLoggingLevel] = useLocalStorage<
-    ClientOptions["loggingLevel"]
-  >({
-    key: "XMTP_LOGGING_LEVEL",
-    defaultValue: "off",
-    getInitialValueInEffect: false,
-  });
   const [forceSCW, setForceSCW] = useLocalStorage<boolean>({
     key: "XMTP_FORCE_SCW",
-    defaultValue: false,
-    getInitialValueInEffect: false,
-  });
-  const [useSCW, setUseSCW] = useLocalStorage<boolean>({
-    key: "XMTP_USE_SCW",
     defaultValue: false,
     getInitialValueInEffect: false,
   });
@@ -58,13 +47,11 @@ export const useSettings = () => {
     forceSCW,
     loggingLevel,
     useSCW,
+    disableAnalytics,
     setBlockchain,
     setEncryptionKey,
-    setEnvironment,
-    setEphemeralAccountEnabled,
     setEphemeralAccountKey,
     setForceSCW,
-    setLoggingLevel,
-    setUseSCW,
+    setEphemeralAccountEnabled,
   };
 };
