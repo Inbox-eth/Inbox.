@@ -13,9 +13,9 @@
     "clean:dist": "rm -rf dist",
     "dev": "vite",
     "typecheck": "tsc",
-    "test": "vitest",
-  "test:ui": "vitest --ui",
-  "coverage": "vitest run --coverage"
+    "test": "npx vitest run",
+    "test:ui": "npx vitest --ui",
+    "coverage": "npx vitest run --coverage"
   },
   "dependencies": {
     "@mantine/core": "^8.0.2",
