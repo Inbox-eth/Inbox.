@@ -4,15 +4,22 @@ import { useSettings } from "@/hooks/useSettings";
 import { useEffect } from "react";
 
 export const Connect = () => {
-  const { login, ready, authenticated } = usePrivy();
+  const { login, ready, authenticated, user } = usePrivy();
   const { ephemeralAccountEnabled, setEphemeralAccountEnabled } = useSettings();
 
-  // Enable ephemeral account when authenticated with Privy (email login), but only if not already enabled
+  // Enable ephemeral account only for Privy email login (embedded wallet), not for external wallets
   useEffect(() => {
-    if (authenticated && !ephemeralAccountEnabled) {
+    if (
+      authenticated &&
+      user &&
+      user.email &&
+      user.wallet &&
+      user.wallet.connectorType === "embedded" &&
+      !ephemeralAccountEnabled
+    ) {
       setEphemeralAccountEnabled(true);
     }
-  }, [authenticated, ephemeralAccountEnabled, setEphemeralAccountEnabled]);
+  }, [authenticated, user, ephemeralAccountEnabled, setEphemeralAccountEnabled]);
 
   return (
     <Group p="md" justify="center">

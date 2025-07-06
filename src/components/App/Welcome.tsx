@@ -22,6 +22,7 @@ import {
 } from "@/helpers/createSigner";
 import { useRedirect } from "@/hooks/useRedirect";
 import { useSettings } from "@/hooks/useSettings";
+import { usePrivy } from "@privy-io/react-auth";
 
 export const Welcome = () => {
   const { status } = useConnect();
@@ -36,6 +37,7 @@ export const Welcome = () => {
     ephemeralAccountEnabled,
     ephemeralAccountKey,
     setEphemeralAccountKey,
+    setEphemeralAccountEnabled,
     loggingLevel,
     useSCW,
   } = useSettings();
@@ -43,6 +45,7 @@ export const Welcome = () => {
     base: "5%",
     sm: "10%",
   });
+  const { user, authenticated } = usePrivy();
 
   // redirect if there's already a client
   useEffect(() => {
@@ -59,10 +62,12 @@ export const Welcome = () => {
   // create client if ephemeral account is enabled
   useEffect(() => {
     if (ephemeralAccountEnabled) {
+      console.log("[Welcome] Initializing XMTP client for ephemeral account");
       let accountKey = ephemeralAccountKey;
       if (!accountKey) {
         accountKey = generatePrivateKey();
         setEphemeralAccountKey(accountKey);
+        console.log("[Welcome] Generated new ephemeral account key");
       }
 
       const signer = createEphemeralSigner(accountKey);
@@ -74,6 +79,8 @@ export const Welcome = () => {
         loggingLevel,
         signer,
       });
+    } else {
+      console.log("[Welcome] Ephemeral account not enabled, skipping XMTP client init");
     }
   }, [
     ephemeralAccountEnabled,
@@ -105,6 +112,34 @@ export const Welcome = () => {
           ),
     });
   }, [account.address, account.chainId, useSCW, signMessageAsync]);
+
+  // Fallback: ensure ephemeral is enabled for Privy email login (embedded wallet)
+  useEffect(() => {
+    console.log("[Welcome] Fallback effect running");
+    console.log("[Welcome] authenticated:", authenticated);
+    console.log("[Welcome] user:", user);
+    console.log("[Welcome] user.email:", user?.email);
+    console.log("[Welcome] user.wallet:", user?.wallet);
+    console.log("[Welcome] user.wallet.connectorType:", user?.wallet?.connectorType);
+    console.log("[Welcome] ephemeralAccountEnabled:", ephemeralAccountEnabled);
+    if (
+      authenticated &&
+      user &&
+      user.email &&
+      user.wallet &&
+      user.wallet.connectorType === "embedded" &&
+      !ephemeralAccountEnabled
+    ) {
+      console.log("[Welcome] Enabling ephemeral account mode for embedded wallet");
+      setEphemeralAccountEnabled(true);
+    }
+  }, [
+    authenticated,
+    user,
+    user?.wallet,
+    ephemeralAccountEnabled,
+    setEphemeralAccountEnabled,
+  ]);
 
   const isBusy = status === "pending" || initializing;
 

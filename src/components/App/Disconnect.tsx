@@ -15,16 +15,34 @@ export const Disconnect: React.FC = () => {
   const { logout } = usePrivy();
 
   useEffect(() => {
-    if (ephemeralAccountEnabled) {
+    const doLogout = async () => {
+      // Block ephemeral logic during logout
+      localStorage.setItem("loggingOut", "true");
+
+      // 1. Clear ephemeral state
       setEphemeralAccountEnabled(false);
-    }
-    logout();
-    disconnect(undefined, {
-      onSuccess: () => {
-        disconnectClient();
-        void navigate("/");
-      },
-    });
+
+      // 2. Await Privy logout
+      await logout();
+
+      // 3. Await wagmi disconnect
+      await new Promise((resolve) => {
+        disconnect(undefined, {
+          onSuccess: resolve,
+        });
+      });
+
+      // 4. Disconnect XMTP
+      disconnectClient();
+
+      // 5. Remove loggingOut flag
+      localStorage.removeItem("loggingOut");
+
+      // 6. Navigate to welcome screen
+      navigate("/");
+    };
+
+    void doLogout();
   }, []);
 
   return (
