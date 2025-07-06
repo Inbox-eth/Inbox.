@@ -2,6 +2,7 @@ import React from 'react';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { cleanup, render } from '../test-utils';
 import { Disconnect } from '../src/components/App/Disconnect';
+import { waitFor } from '@testing-library/react';
 
 vi.mock('@privy-io/react-auth', () => ({ usePrivy: vi.fn() }));
 vi.mock('react-router', () => ({ ...vi.importActual('react-router'), useNavigate: vi.fn() }));
@@ -21,7 +22,7 @@ afterEach(() => {
 });
 
 describe('Disconnect', () => {
-  it('calls all disconnect logic on mount', () => {
+  it('calls all disconnect logic on mount', async () => {
     const logout = vi.fn();
     const disconnect = vi.fn((_, { onSuccess }) => onSuccess && onSuccess());
     const disconnectClient = vi.fn();
@@ -36,10 +37,12 @@ describe('Disconnect', () => {
 
     render(<Disconnect />);
 
-    expect(logout).toHaveBeenCalled();
-    expect(disconnect).toHaveBeenCalled();
-    expect(disconnectClient).toHaveBeenCalled();
-    expect(setEphemeralAccountEnabled).toHaveBeenCalledWith(false);
-    expect(navigate).toHaveBeenCalledWith('/');
+    await waitFor(() => {
+      expect(logout).toHaveBeenCalled();
+      expect(disconnect).toHaveBeenCalled();
+      expect(disconnectClient).toHaveBeenCalled();
+      expect(setEphemeralAccountEnabled).toHaveBeenCalledWith(false);
+      expect(navigate).toHaveBeenCalledWith('/');
+    });
   });
 }); 
