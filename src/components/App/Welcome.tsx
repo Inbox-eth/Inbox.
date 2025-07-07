@@ -1,3 +1,4 @@
+import React, { useEffect } from "react";
 import {
   Anchor,
   LoadingOverlay,
@@ -6,12 +7,13 @@ import {
   Title,
   useMatches,
   Space,
+  Button,
+  Group,
 } from "@mantine/core";
-import { useEffect } from "react";
 import { Outlet, useNavigate } from "react-router";
 import { hexToUint8Array } from "uint8array-extras";
 import { generatePrivateKey } from "viem/accounts";
-import { useAccount, useConnect, useSignMessage } from "wagmi";
+import { useAccount, useConnect, useSignMessage, useDisconnect } from "wagmi";
 import { Connect } from "@/components/App/Connect";
 import { Settings } from "@/components/App/Settings";
 import { useXMTP } from "@/contexts/XMTPContext";
@@ -24,6 +26,7 @@ import { useRedirect } from "@/hooks/useRedirect";
 import { useSettings } from "@/hooks/useSettings";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { useSetActiveWallet } from "@privy-io/wagmi";
+import { AddressBadge } from "@/components/AddressBadge";
 
 export const Welcome = () => {
   const { status } = useConnect();
@@ -46,21 +49,24 @@ export const Welcome = () => {
     base: "5%",
     sm: "10%",
   });
-  const { user, authenticated } = usePrivy();
+  const { user, authenticated, logout } = usePrivy();
   const { wallets } = useWallets();
   const { setActiveWallet } = useSetActiveWallet();
+  const { disconnect } = useDisconnect();
+  const { disconnect: disconnectClient } = useXMTP();
+  const [disconnecting, setDisconnecting] = React.useState(false);
 
   // redirect if there's already a client
-  useEffect(() => {
-    if (client) {
-      if (redirectUrl) {
-        setRedirectUrl("");
-        void navigate(redirectUrl);
-      } else {
-        void navigate("/");
-      }
-    }
-  }, [client]);
+  // useEffect(() => {
+  //   if (client) {
+  //     if (redirectUrl) {
+  //       setRedirectUrl("");
+  //       void navigate(redirectUrl);
+  //     } else {
+  //       void navigate("/");
+  //     }
+  //   }
+  // }, [client]);
 
   // create client if ephemeral account is enabled
   useEffect(() => {
@@ -187,7 +193,25 @@ export const Welcome = () => {
     setActiveWallet,
   ]);
 
-  const isBusy = status === "pending" || initializing;
+  const isBusy = status === "pending" || initializing || disconnecting;
+  const isWalletConnected = !!account.address;
+
+  const handleDisconnect = async () => {
+    setDisconnecting(true);
+    try {
+      setEphemeralAccountEnabled(false);
+      await logout();
+      await new Promise((resolve) => {
+        disconnect(undefined, {
+          onSuccess: resolve,
+        });
+      });
+      disconnectClient();
+      navigate("/welcome");
+    } finally {
+      setDisconnecting(false);
+    }
+  };
 
   return (
     <>
@@ -200,18 +224,32 @@ export const Welcome = () => {
           </Text>
         </Stack>
         <Space h="xl" />
-        <Stack gap="md">
-          
-          <Connect />
-          <Text fs="italic" size="xs" mt="xl">
-            This is a simple inbox app built with XMTP. It is not affiliated with XMTP.
-          </Text>
-          <Space h="xl" />
-          <Title order={3} size="md" mt="xl">
-            Settings
-          </Title>
-          <Settings />
-        </Stack>
+        {/* Step 1: Connect Wallet */}
+        <Connect />
+        {/* Step 2: Display wallet info if connected */}
+        {isWalletConnected && (
+          <Stack gap="sm" align="center">
+            <Title order={3} size="md">Connected Wallet</Title>
+            <Group>
+              <AddressBadge address={account.address || ''} size="lg" />
+              <Button size="xs" color="red" variant="outline" onClick={handleDisconnect} loading={disconnecting}>
+                Disconnect
+              </Button>
+            </Group>
+          </Stack>
+        )}
+        {/* Step 3: Proceed to Inbox button */}
+        {isWalletConnected && (
+          <Button size="md" mt="xl" onClick={() => navigate("/conversations")}>Proceed to Inbox</Button>
+        )}
+        <Text fs="italic" size="xs" mt="xl">
+          This is a simple inbox app built with XMTP. It is not affiliated with XMTP.
+        </Text>
+        <Space h="xl" />
+        <Title order={3} size="md" mt="xl">
+          Settings
+        </Title>
+        <Settings />
       </Stack>
       <Outlet />
     </>
