@@ -127,35 +127,6 @@ export const Welcome = () => {
     });
   }, [account.address, account.chainId, useSCW, signMessageAsync]);
 
-  // Fallback: ensure ephemeral is enabled for Privy email login (embedded wallet)
-  useEffect(() => {
-    console.log("[Welcome] Fallback effect running");
-    console.log("[Welcome] authenticated:", authenticated);
-    console.log("[Welcome] user:", user);
-    console.log("[Welcome] user.email:", user?.email);
-    console.log("[Welcome] user.wallet:", user?.wallet);
-    console.log("[Welcome] user.wallet.connectorType:", user?.wallet?.connectorType);
-    console.log("[Welcome] user.wallet.walletClientType:", user?.wallet?.walletClientType);
-    console.log("[Welcome] ephemeralAccountEnabled:", ephemeralAccountEnabled);
-    if (
-      authenticated &&
-      user &&
-      user.email &&
-      user.wallet &&
-      user.wallet.connectorType === "embedded" &&
-      !ephemeralAccountEnabled
-    ) {
-      console.log("[Welcome] Enabling ephemeral account mode for embedded wallet");
-      setEphemeralAccountEnabled(true);
-    }
-  }, [
-    authenticated,
-    user,
-    user?.wallet,
-    ephemeralAccountEnabled,
-    setEphemeralAccountEnabled,
-  ]);
-
   // Ensure wagmi is synced with Privy's active injected wallet
   useEffect(() => {
     // Only run if authenticated, user has an external wallet (not embedded), but wagmi's account.address is not set
