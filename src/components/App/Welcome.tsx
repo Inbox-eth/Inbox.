@@ -95,9 +95,9 @@ export const Welcome = () => {
 
   // create client if wallet is connected
   useEffect(() => {
-    console.log("[Welcome] wagmi account.address:", account.address);
-    console.log("[Welcome] wagmi account.chainId:", account.chainId);
-    console.log("[Welcome] useSCW:", useSCW);
+    console.log("[Welcome] [XMTP Init Effect] wagmi account.address:", account.address);
+    console.log("[Welcome] [XMTP Init Effect] wagmi account.chainId:", account.chainId);
+    console.log("[Welcome] [XMTP Init Effect] useSCW:", useSCW);
     if (!account.address || (useSCW && !account.chainId)) {
       return;
     }
@@ -150,27 +150,42 @@ export const Welcome = () => {
 
   // Ensure wagmi is synced with Privy's active injected wallet
   useEffect(() => {
-    // Only run if authenticated, user has an injected wallet, but wagmi's account.address is not set
+    // Only run if authenticated, user has an external wallet (not embedded), but wagmi's account.address is not set
     if (
       authenticated &&
       user &&
-      user.wallet?.connectorType === "injected" &&
-      user.wallet?.address &&
+      user.wallet &&
+      user.wallet.connectorType !== "embedded" &&
+      user.wallet.address &&
       !account.address &&
       wallets &&
       setActiveWallet
     ) {
-      const privyInjectedWallet = wallets.find(
-        (w) => w.connectorType === "injected" && w.address === user.wallet?.address
+      console.log("[Welcome] Privy wallets:", wallets);
+      // Only set the active wallet if it matches user.wallet
+      const matchingWallet = wallets.find(
+        (w) =>
+          w.connectorType === user.wallet?.connectorType &&
+          w.address === user.wallet?.address
       );
-      if (privyInjectedWallet) {
-        console.log("[Welcome] Setting active wallet in wagmi to Privy injected wallet:", privyInjectedWallet);
-        setActiveWallet(privyInjectedWallet);
+      if (matchingWallet) {
+        console.log("[Welcome] Setting active wallet in wagmi to Privy external wallet:", matchingWallet);
+        setActiveWallet(matchingWallet).then(() => {
+          console.log("[Welcome] Called setActiveWallet, wagmi account.address is now:", account.address);
+        });
       } else {
-        console.log("[Welcome] No matching injected wallet found in Privy wallets for address:", user.wallet?.address);
+        console.log("[Welcome] No matching external wallet found in Privy wallets for address:", user.wallet?.address);
       }
     }
-  }, [authenticated, user, user?.wallet, user?.wallet?.address, account.address, wallets, setActiveWallet]);
+  }, [
+    authenticated,
+    user,
+    user?.wallet,
+    user?.wallet?.address,
+    account.address,
+    wallets,
+    setActiveWallet,
+  ]);
 
   const isBusy = status === "pending" || initializing;
 

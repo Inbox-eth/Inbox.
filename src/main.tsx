@@ -5,7 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import pkg from "@xmtp/browser-sdk/package.json";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router";
-import { createConfig, http, WagmiProvider } from "wagmi";
+import { createConfig, WagmiProvider } from "@privy-io/wagmi";
+import { http } from "wagmi";
 import {
   arbitrum,
   arbitrumSepolia,
@@ -77,8 +78,8 @@ export const config = createConfig({
 
 createRoot(document.getElementById("root") as HTMLElement).render(
   <PrivyProvider appId={import.meta.env.VITE_PRIVY_APP_ID || "YOUR_PRIVY_APP_ID"}>
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <WagmiProvider config={config}>
         <MantineProvider defaultColorScheme="auto">
           <XMTPProvider>
             <BrowserRouter>
@@ -86,8 +87,8 @@ createRoot(document.getElementById("root") as HTMLElement).render(
             </BrowserRouter>
           </XMTPProvider>
         </MantineProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+      </WagmiProvider>
+    </QueryClientProvider>
   </PrivyProvider>,
 );
 
