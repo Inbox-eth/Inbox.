@@ -22,7 +22,8 @@ import {
 } from "@/helpers/createSigner";
 import { useRedirect } from "@/hooks/useRedirect";
 import { useSettings } from "@/hooks/useSettings";
-import { usePrivy } from "@privy-io/react-auth";
+import { usePrivy, useWallets } from "@privy-io/react-auth";
+import { useSetActiveWallet } from "@privy-io/wagmi";
 
 export const Welcome = () => {
   const { status } = useConnect();
@@ -46,6 +47,8 @@ export const Welcome = () => {
     sm: "10%",
   });
   const { user, authenticated } = usePrivy();
+  const { wallets } = useWallets();
+  const { setActiveWallet } = useSetActiveWallet();
 
   // redirect if there's already a client
   useEffect(() => {
@@ -92,6 +95,9 @@ export const Welcome = () => {
 
   // create client if wallet is connected
   useEffect(() => {
+    console.log("[Welcome] wagmi account.address:", account.address);
+    console.log("[Welcome] wagmi account.chainId:", account.chainId);
+    console.log("[Welcome] useSCW:", useSCW);
     if (!account.address || (useSCW && !account.chainId)) {
       return;
     }
@@ -121,6 +127,7 @@ export const Welcome = () => {
     console.log("[Welcome] user.email:", user?.email);
     console.log("[Welcome] user.wallet:", user?.wallet);
     console.log("[Welcome] user.wallet.connectorType:", user?.wallet?.connectorType);
+    console.log("[Welcome] user.wallet.walletClientType:", user?.wallet?.walletClientType);
     console.log("[Welcome] ephemeralAccountEnabled:", ephemeralAccountEnabled);
     if (
       authenticated &&
@@ -140,6 +147,30 @@ export const Welcome = () => {
     ephemeralAccountEnabled,
     setEphemeralAccountEnabled,
   ]);
+
+  // Ensure wagmi is synced with Privy's active injected wallet
+  useEffect(() => {
+    // Only run if authenticated, user has an injected wallet, but wagmi's account.address is not set
+    if (
+      authenticated &&
+      user &&
+      user.wallet?.connectorType === "injected" &&
+      user.wallet?.address &&
+      !account.address &&
+      wallets &&
+      setActiveWallet
+    ) {
+      const privyInjectedWallet = wallets.find(
+        (w) => w.connectorType === "injected" && w.address === user.wallet?.address
+      );
+      if (privyInjectedWallet) {
+        console.log("[Welcome] Setting active wallet in wagmi to Privy injected wallet:", privyInjectedWallet);
+        setActiveWallet(privyInjectedWallet);
+      } else {
+        console.log("[Welcome] No matching injected wallet found in Privy wallets for address:", user.wallet?.address);
+      }
+    }
+  }, [authenticated, user, user?.wallet, user?.wallet?.address, account.address, wallets, setActiveWallet]);
 
   const isBusy = status === "pending" || initializing;
 
