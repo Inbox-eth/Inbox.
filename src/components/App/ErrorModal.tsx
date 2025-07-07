@@ -13,7 +13,15 @@ export const ErrorModal: React.FC = () => {
 
   useEffect(() => {
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      setUnhandledRejectionError(event.reason as Error);
+      const error = event.reason as Error;
+      // Filter out errors from browser extensions
+      if (
+        (typeof error?.stack === "string" && error.stack.includes("chrome-extension://")) ||
+        (typeof error?.message === "string" && error.message.includes("chrome.runtime.sendMessage"))
+      ) {
+        return; // Ignore extension errors
+      }
+      setUnhandledRejectionError(error);
     };
     window.addEventListener("unhandledrejection", handleUnhandledRejection);
     return () => {
