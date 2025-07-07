@@ -27,6 +27,7 @@ import { useSettings } from "@/hooks/useSettings";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { useSetActiveWallet } from "@privy-io/wagmi";
 import { AddressBadge } from "@/components/AddressBadge";
+import { ENSRegistration } from "@/components/App/ENSRegistration";
 
 export const Welcome = () => {
   const { status } = useConnect();
@@ -55,6 +56,7 @@ export const Welcome = () => {
   const { disconnect } = useDisconnect();
   const { disconnect: disconnectClient } = useXMTP();
   const [disconnecting, setDisconnecting] = React.useState(false);
+  const ensRequired = import.meta.env.VITE_ENS_REQUIRED !== 'false';
 
   // redirect if there's already a client
   // useEffect(() => {
@@ -236,6 +238,8 @@ export const Welcome = () => {
                 Disconnect
               </Button>
             </Group>
+            {/* ENS Registration Step (optional) */}
+            {ensRequired && <ENSRegistration address={account.address || ''} />}
           </Stack>
         )}
         {/* Step 3: Proceed to Inbox button */}

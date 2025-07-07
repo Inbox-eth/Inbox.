@@ -9,4 +9,10 @@ export default defineConfig({
     exclude: ["@xmtp/wasm-bindings", "@xmtp/browser-sdk"],
     include: ["@xmtp/proto"],
   },
+  server: {
+    proxy: {
+      '/api/namestone': 'http://localhost:3001',
+      // (keep '/api/ens' if you still use it)
+    },
+  },
 });

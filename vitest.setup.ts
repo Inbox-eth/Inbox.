@@ -11,4 +11,11 @@ if (typeof window !== 'undefined' && !window.matchMedia) {
       dispatchEvent: function () { return false; },
     };
   };
-} 
+}
+
+// Mock ResizeObserver for Mantine/ScrollArea compatibility in jsdom
+global.ResizeObserver = class {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}; 
