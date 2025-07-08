@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   Anchor,
   LoadingOverlay,
@@ -57,6 +57,7 @@ export const Welcome = () => {
   const { disconnect: disconnectClient } = useXMTP();
   const [disconnecting, setDisconnecting] = React.useState(false);
   const ensRequired = import.meta.env.VITE_ENS_REQUIRED !== 'false';
+  const hasSetActiveWallet = useRef(false);
 
   // redirect if there's already a client
   // useEffect(() => {
@@ -129,7 +130,6 @@ export const Welcome = () => {
 
   // Ensure wagmi is synced with Privy's active injected wallet
   useEffect(() => {
-    // Only run if authenticated, user has an external wallet (not embedded), but wagmi's account.address is not set
     if (
       authenticated &&
       user &&
@@ -138,22 +138,17 @@ export const Welcome = () => {
       user.wallet.address &&
       !account.address &&
       wallets &&
-      setActiveWallet
+      setActiveWallet &&
+      !hasSetActiveWallet.current
     ) {
-      console.log("[Welcome] Privy wallets:", wallets);
-      // Only set the active wallet if it matches user.wallet
       const matchingWallet = wallets.find(
         (w) =>
           w.connectorType === user.wallet?.connectorType &&
           w.address === user.wallet?.address
       );
       if (matchingWallet) {
-        console.log("[Welcome] Setting active wallet in wagmi to Privy external wallet:", matchingWallet);
-        setActiveWallet(matchingWallet).then(() => {
-          console.log("[Welcome] Called setActiveWallet, wagmi account.address is now:", account.address);
-        });
-      } else {
-        console.log("[Welcome] No matching external wallet found in Privy wallets for address:", user.wallet?.address);
+        hasSetActiveWallet.current = true;
+        setActiveWallet(matchingWallet);
       }
     }
   }, [
@@ -165,6 +160,14 @@ export const Welcome = () => {
     wallets,
     setActiveWallet,
   ]);
+
+  if (!authenticated || !account.address) {
+    return (
+      <Stack align="center" justify="center" style={{ minHeight: '100vh' }}>
+        <Connect />
+      </Stack>
+    );
+  }
 
   const isBusy = status === "pending" || initializing || disconnecting;
   const isWalletConnected = !!account.address;
