@@ -58,6 +58,11 @@ export const Welcome = () => {
   const [disconnecting, setDisconnecting] = React.useState(false);
   const ensRequired = import.meta.env.VITE_ENS_REQUIRED !== 'false';
   const hasSetActiveWallet = useRef(false);
+  const { ready } = usePrivy();
+  const isWagmiLoading = account.status === "connecting";
+
+  // Debug log for wallet/account restoration
+  console.log('Welcome:', { ready, authenticated, accountAddress: account.address, accountStatus: account.status });
 
   // redirect if there's already a client
   // useEffect(() => {
@@ -161,10 +166,39 @@ export const Welcome = () => {
     setActiveWallet,
   ]);
 
+  // Automatically navigate to /conversations if ENS is not required and wallet is connected
+  useEffect(() => {
+    if (!ensRequired && authenticated && account.address) {
+      navigate("/conversations");
+    }
+  }, [ensRequired, authenticated, account.address, navigate]);
+
+  // Wait for Privy and Wagmi to finish restoring before showing Connect
+  if (!ready || isWagmiLoading) {
+    return (
+      <Stack align="center" justify="center" style={{ minHeight: '100vh' }}>
+        <LoadingOverlay visible />
+      </Stack>
+    );
+  }
+
   if (!authenticated || !account.address) {
     return (
       <Stack align="center" justify="center" style={{ minHeight: '100vh' }}>
+        <Title order={1}>Inbox App</Title>
+        <Text fs="italic" size="xl">
+          A simple inbox app built with XMTP
+        </Text>
+        <Space h="xl" />
         <Connect />
+        <Text fs="italic" size="xs" mt="xl">
+          This is a simple inbox app built with XMTP. It is not affiliated with XMTP.
+        </Text>
+        <Space h="xl" />
+        <Title order={3} size="md" mt="xl">
+          Settings
+        </Title>
+        <Settings />
       </Stack>
     );
   }
@@ -216,8 +250,8 @@ export const Welcome = () => {
             {ensRequired && <ENSRegistration address={account.address || ''} />}
           </Stack>
         )}
-        {/* Step 3: Proceed to Inbox button */}
-        {isWalletConnected && (
+        {/* Step 3: Proceed to Inbox button (only if ENS is required) */}
+        {isWalletConnected && ensRequired && (
           <Button size="md" mt="xl" onClick={() => navigate("/conversations")}>Proceed to Inbox</Button>
         )}
         <Text fs="italic" size="xs" mt="xl">
