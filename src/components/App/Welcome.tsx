@@ -1,6 +1,5 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import {
-  Anchor,
   LoadingOverlay,
   Stack,
   Text,
@@ -11,21 +10,8 @@ import {
   Group,
 } from "@mantine/core";
 import { Outlet, useNavigate } from "react-router";
-import { hexToUint8Array } from "uint8array-extras";
-import { generatePrivateKey } from "viem/accounts";
-import { useAccount, useConnect, useSignMessage, useDisconnect } from "wagmi";
 import { Connect } from "@/components/App/Connect";
 import { Settings } from "@/components/App/Settings";
-import { useXMTP } from "@/contexts/XMTPContext";
-import {
-  createEOASigner,
-  createEphemeralSigner,
-  createSCWSigner,
-} from "@/helpers/createSigner";
-import { useRedirect } from "@/hooks/useRedirect";
-import { useSettings } from "@/hooks/useSettings";
-import { usePrivy, useWallets } from "@privy-io/react-auth";
-import { useSetActiveWallet } from "@privy-io/wagmi";
 import { AddressBadge } from "@/components/AddressBadge";
 import { ENSRegistration } from "@/components/App/ENSRegistration";
 import { useConnection } from "@/contexts/ConnectionProvider";
@@ -33,7 +19,6 @@ import { useConnection } from "@/contexts/ConnectionProvider";
 export const Welcome = () => {
   const { ready, authenticated, account, disconnecting, handleDisconnect } = useConnection();
   const navigate = useNavigate();
-  const { redirectUrl, setRedirectUrl } = useRedirect();
   const px = useMatches({ base: "5%", sm: "10%" });
   const ensRequired = import.meta.env.VITE_ENS_REQUIRED !== 'false';
   const isWalletConnected = !!account.address;

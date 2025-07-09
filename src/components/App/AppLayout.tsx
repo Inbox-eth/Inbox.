@@ -5,7 +5,6 @@ import { Outlet, useLocation, useNavigate } from "react-router";
 import { AppFooter } from "@/components/App/AppFooter";
 import { AppHeader } from "@/components/App/AppHeader";
 import { ConversationsNavbar } from "@/components/Conversations/ConversationsNavbar";
-import { useXMTP } from "@/contexts/XMTPContext";
 import { useRedirect } from "@/hooks/useRedirect";
 import { CenteredLayout } from "@/layouts/CenteredLayout";
 import {
@@ -16,10 +15,7 @@ import {
   MainLayoutNav,
 } from "@/layouts/MainLayout";
 import { usePrivy } from "@privy-io/react-auth";
-import { useAccount, useSignMessage } from "wagmi";
-import { useSettings } from "@/hooks/useSettings";
-import { createEOASigner, createSCWSigner } from "@/helpers/createSigner";
-import { hexToUint8Array } from "uint8array-extras";
+import { useAccount } from "wagmi";
 import { useConnection } from "@/contexts/ConnectionProvider";
 
 export const AppLayout: React.FC = () => {
@@ -33,13 +29,6 @@ export const AppLayout: React.FC = () => {
   const everReady = useRef(false);
   const everConnected = useRef(false);
   const hydrated = useRef(false);
-  const { signMessageAsync } = useSignMessage();
-  const {
-    encryptionKey,
-    environment,
-    loggingLevel,
-    useSCW,
-  } = useSettings();
 
   // Track if Privy has ever been ready
   if (ready) everReady.current = true;
