@@ -3,18 +3,11 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { cleanup, render } from '../test-utils';
 import { Disconnect } from '../src/components/App/Disconnect';
 import { waitFor } from '@testing-library/react';
+import { ConnectionContext } from '../src/contexts/ConnectionProvider';
 
-vi.mock('@privy-io/react-auth', () => ({ usePrivy: vi.fn() }));
 vi.mock('react-router', () => ({ ...vi.importActual('react-router'), useNavigate: vi.fn() }));
-vi.mock('wagmi', () => ({ useDisconnect: vi.fn() }));
-vi.mock('../src/contexts/XMTPContext', () => ({ useXMTP: vi.fn() }));
-vi.mock('../src/hooks/useSettings', () => ({ useSettings: vi.fn() }));
 
-import { usePrivy } from '@privy-io/react-auth';
 import { useNavigate } from 'react-router';
-import { useDisconnect } from 'wagmi';
-import { useXMTP } from '../src/contexts/XMTPContext';
-import { useSettings } from '../src/hooks/useSettings';
 
 afterEach(() => {
   cleanup();
@@ -22,27 +15,43 @@ afterEach(() => {
 });
 
 describe('Disconnect', () => {
-  it('calls all disconnect logic on mount', async () => {
-    const logout = vi.fn();
-    const disconnect = vi.fn((_, { onSuccess }) => onSuccess && onSuccess());
-    const disconnectClient = vi.fn();
-    const setEphemeralAccountEnabled = vi.fn();
+  it('calls handleDisconnect and navigates to /welcome on mount', async () => {
+    const handleDisconnect = vi.fn();
     const navigate = vi.fn();
 
-    (usePrivy as any).mockReturnValue({ logout });
-    (useDisconnect as any).mockReturnValue({ disconnect });
-    (useXMTP as any).mockReturnValue({ disconnect: disconnectClient });
-    (useSettings as any).mockReturnValue({ ephemeralAccountEnabled: true, setEphemeralAccountEnabled });
     (useNavigate as any).mockReturnValue(navigate);
 
-    render(<Disconnect />);
+    render(
+      <ConnectionContext.Provider value={{
+        handleDisconnect,
+        // Provide dummy values for required context fields
+        ready: true,
+        authenticated: false,
+        account: {
+          address: undefined,
+          addresses: [],
+          chain: undefined,
+          chainId: undefined,
+          connector: undefined,
+          isConnecting: false,
+          isReconnecting: false,
+          isConnected: false,
+          isDisconnected: true,
+          status: 'disconnected',
+        } as any,
+        client: undefined,
+        initializing: false,
+        disconnecting: false,
+        ephemeralAccountEnabled: false,
+        setEphemeralAccountEnabled: () => {},
+      }}>
+        <Disconnect />
+      </ConnectionContext.Provider>
+    );
 
     await waitFor(() => {
-      expect(logout).toHaveBeenCalled();
-      expect(disconnect).toHaveBeenCalled();
-      expect(disconnectClient).toHaveBeenCalled();
-      expect(setEphemeralAccountEnabled).toHaveBeenCalledWith(false);
-      expect(navigate).toHaveBeenCalledWith('/');
+      expect(handleDisconnect).toHaveBeenCalled();
+      expect(navigate).toHaveBeenCalledWith('/welcome');
     });
   });
 }); 

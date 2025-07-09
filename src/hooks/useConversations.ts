@@ -16,7 +16,21 @@ export const useConversations = () => {
   >([]);
 
   if (!client) {
-    throw new Error("XMTP client not initialized");
+    return {
+      conversations: [],
+      getConversationById: async () => undefined,
+      getMessageById: async () => undefined,
+      list: async () => [],
+      loading: true,
+      newDm: async () => undefined,
+      newDmWithIdentifier: async () => undefined,
+      newGroup: async () => undefined,
+      newGroupWithIdentifiers: async () => undefined,
+      stream: async () => undefined,
+      sync: async () => undefined,
+      syncAll: async () => undefined,
+      syncing: true,
+    };
   }
 
   const list = async (

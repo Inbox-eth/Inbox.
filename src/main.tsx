@@ -31,6 +31,7 @@ import {
 import { App } from "@/components/App/App";
 import { XMTPProvider } from "@/contexts/XMTPContext";
 import { PrivyProvider } from "@privy-io/react-auth";
+import { ConnectionProvider } from "@/contexts/ConnectionProvider";
 
 const queryClient = new QueryClient();
 
@@ -82,9 +83,11 @@ createRoot(document.getElementById("root") as HTMLElement).render(
       <WagmiProvider config={config}>
         <MantineProvider defaultColorScheme="auto">
           <XMTPProvider>
-            <BrowserRouter>
-              <App />
-            </BrowserRouter>
+            <ConnectionProvider>
+              <BrowserRouter>
+                <App />
+              </BrowserRouter>
+            </ConnectionProvider>
           </XMTPProvider>
         </MantineProvider>
       </WagmiProvider>

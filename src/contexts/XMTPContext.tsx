@@ -92,10 +92,12 @@ export const XMTPProvider: React.FC<XMTPProviderProps> = ({
       loggingLevel,
       signer,
     }: InitializeClientOptions) => {
+      console.log('[XMTPProvider] initialize called', { signer, env, loggingLevel });
       // only initialize a client if one doesn't already exist
       if (!client) {
         // if the client is already initializing, don't do anything
         if (initializingRef.current) {
+          console.log('[XMTPProvider] Already initializing, skipping');
           return undefined;
         }
 
@@ -124,9 +126,11 @@ export const XMTPProvider: React.FC<XMTPProviderProps> = ({
             ],
           });
           setClient(xmtpClient);
+          console.log('[XMTPProvider] Client created', { identifier: xmtpClient.accountIdentifier });
         } catch (e) {
           setClient(undefined);
           setError(e as Error);
+          console.error('[XMTPProvider] Failed to create client', e);
           // re-throw error for upstream consumption
           throw e;
         } finally {
@@ -136,6 +140,7 @@ export const XMTPProvider: React.FC<XMTPProviderProps> = ({
 
         return xmtpClient;
       }
+      console.log('[XMTPProvider] Client already exists, reusing', { identifier: client.accountIdentifier });
       return client;
     },
     [client],
@@ -143,6 +148,7 @@ export const XMTPProvider: React.FC<XMTPProviderProps> = ({
 
   const disconnect = useCallback(() => {
     if (client) {
+      console.log('[XMTPProvider] Disconnecting client', { identifier: client.accountIdentifier });
       client.close();
       setClient(undefined);
     }
@@ -160,6 +166,10 @@ export const XMTPProvider: React.FC<XMTPProviderProps> = ({
     }),
     [client, initialize, initializing, error, disconnect],
   );
+
+  if (error) {
+    console.error('[XMTPProvider] Error state', error);
+  }
 
   return <XMTPContext.Provider value={value}>{children}</XMTPContext.Provider>;
 };

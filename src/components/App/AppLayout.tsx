@@ -20,17 +20,19 @@ import { useAccount, useSignMessage } from "wagmi";
 import { useSettings } from "@/hooks/useSettings";
 import { createEOASigner, createSCWSigner } from "@/helpers/createSigner";
 import { hexToUint8Array } from "uint8array-extras";
+import { useConnection } from "@/contexts/ConnectionProvider";
 
 export const AppLayout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { client, initializing, initialize } = useXMTP();
+  const { client, initializing } = useConnection();
   const { setRedirectUrl } = useRedirect();
   const [opened, { toggle }] = useDisclosure(); 
   const { ready, authenticated } = usePrivy();
   const account = useAccount();
   const everReady = useRef(false);
   const everConnected = useRef(false);
+  const hydrated = useRef(false);
   const { signMessageAsync } = useSignMessage();
   const {
     encryptionKey,
@@ -44,53 +46,32 @@ export const AppLayout: React.FC = () => {
   // Track if Wagmi has ever been connected
   if (account.status === "connected" && account.address) everConnected.current = true;
 
+  // Set hydrated to true after wallet is ever connected
+  if (account.status === "connected") hydrated.current = true;
+
   const isWagmiLoading = account.status === "connecting";
   const isLoading = !ready || initializing || isWagmiLoading;
 
   useEffect(() => {
     console.log('AppLayout:', { ready, authenticated, accountAddress: account.address, accountStatus: account.status, everReady: everReady.current, everConnected: everConnected.current });
-    if (isLoading) return;
-    // Only run redirect logic if both have ever been ready/connected
-    if (!everReady.current || !everConnected.current) return;
-    if (!authenticated || !account.address) {
-      if (
-        location.pathname !== "/welcome" &&
-        location.pathname !== "/disconnect"
-      ) {
-        setRedirectUrl(location.pathname);
-      }
+    // Wait until both Privy and Wagmi are fully loaded
+    if (!ready || account.status === "connecting" || initializing) return;
+
+    // Only redirect if not authenticated or wallet not connected,
+    // and only after we've seen the wallet hydrated at least once
+    if (
+      (!authenticated || account.status !== "connected") &&
+      hydrated.current &&
+      location.pathname !== "/welcome" &&
+      location.pathname !== "/disconnect"
+    ) {
+      setRedirectUrl(location.pathname);
       void navigate("/welcome");
     }
-    // If authenticated and wallet connected, but no client, let Welcome handle client creation
-  }, [authenticated, account.address, isLoading]);
+    // If authenticated and wallet connected, do nothing (stay on current page)
+  }, [ready, authenticated, account.status, initializing]);
 
-  // Initialize XMTP client for authenticated, connected users if not already initialized
-  useEffect(() => {
-    if (
-      authenticated &&
-      account.address &&
-      !client &&
-      everReady.current &&
-      everConnected.current
-    ) {
-      initialize({
-        dbEncryptionKey: encryptionKey
-          ? hexToUint8Array(encryptionKey)
-          : undefined,
-        env: environment,
-        loggingLevel,
-        signer: useSCW
-          ? createSCWSigner(
-              account.address,
-              (message) => signMessageAsync({ message }),
-              account.chainId
-            )
-          : createEOASigner(account.address, (message) => signMessageAsync({ message })),
-      });
-    }
-  }, [authenticated, account.address, client, everReady.current, everConnected.current, encryptionKey, environment, loggingLevel, useSCW, signMessageAsync, account.chainId, initialize]);
-
-  if (isLoading) {
+  if (initializing) {
     return (
       <CenteredLayout>
         <LoadingOverlay visible />
