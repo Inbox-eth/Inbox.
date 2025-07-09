@@ -54,11 +54,22 @@ export const AppLayout: React.FC = () => {
 
   useEffect(() => {
     console.log('AppLayout:', { ready, authenticated, accountAddress: account.address, accountStatus: account.status, everReady: everReady.current, everConnected: everConnected.current });
-    // Wait until both Privy and Wagmi are fully loaded
+    // Wait until Privy is ready and Wagmi is not connecting
     if (!ready || account.status === "connecting" || initializing) return;
 
-    // Only redirect if not authenticated or wallet not connected,
-    // and only after we've seen the wallet hydrated at least once
+    // If wallet is disconnected and not authenticated, redirect to /welcome
+    if (
+      account.status === "disconnected" &&
+      !authenticated &&
+      location.pathname !== "/welcome" &&
+      location.pathname !== "/disconnect"
+    ) {
+      setRedirectUrl(location.pathname);
+      void navigate("/welcome");
+      return;
+    }
+
+    // If wallet is connected but not authenticated, or hydrated and not authenticated, redirect to /welcome
     if (
       (!authenticated || account.status !== "connected") &&
       hydrated.current &&
@@ -68,7 +79,6 @@ export const AppLayout: React.FC = () => {
       setRedirectUrl(location.pathname);
       void navigate("/welcome");
     }
-    // If authenticated and wallet connected, do nothing (stay on current page)
   }, [ready, authenticated, account.status, initializing]);
 
   if (initializing) {
