@@ -13,14 +13,19 @@ export type MessageListProps = {
 };
 
 export const MessageList: React.FC<MessageListProps> = ({ messages }) => {
+  console.log("messages", messages);
+  const ids = messages.map((m) => m.id);
+  console.log("message ids", ids);
+  // Use Array.from to ensure a new array reference, but keep DecodedMessage instances
+  const messageArray = useMemo(() => Array.from(messages), [messages]);
   const virtuoso = useRef<VirtuosoHandle>(null);
   const messageMap = useMemo(() => {
     const map = new Map<string, number>();
-    messages.forEach((message, index) => {
+    messageArray.forEach((message, index) => {
       map.set(message.id, index);
     });
     return map;
-  }, [messages]);
+  }, [messageArray]);
   const scrollToMessage = useCallback(
     (id: string) => {
       const index = messageMap.get(id);
@@ -39,11 +44,11 @@ export const MessageList: React.FC<MessageListProps> = ({ messages }) => {
       components={{
         List,
       }}
-      initialTopMostItemIndex={messages.length - 1}
-      data={messages}
+      initialTopMostItemIndex={messageArray.length - 1}
+      data={messageArray}
       itemContent={(_, message) => (
         <Message
-          key={message.id}
+          key={message.id || message.sentAtNs?.toString() || Math.random()}
           message={message}
           scrollToMessage={scrollToMessage}
         />
