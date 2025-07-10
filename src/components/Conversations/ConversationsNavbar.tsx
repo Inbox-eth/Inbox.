@@ -68,19 +68,27 @@ export const ConversationsNavbar: React.FC = () => {
         />
       }
       withScrollArea={false}>
-      {conversations.length === 0 ? (
-        <Box
-          display="flex"
-          style={{
-            flexGrow: 1,
-            alignItems: "center",
-            justifyContent: "center",
-          }}>
-          <Text>No conversations found</Text>
-        </Box>
-      ) : (
-        <ConversationsList conversations={conversations} />
-      )}
+      {(() => {
+        console.log('[ConversationsNavbar] conversations:', conversations);
+        console.log('[ConversationsNavbar] conversations.length:', conversations.length);
+        console.log('[ConversationsNavbar] conversation ids:', conversations.map(c => c.id));
+        if (conversations.length === 0) {
+          return (
+            <Box
+              display="flex"
+              style={{
+                flexGrow: 1,
+                alignItems: "center",
+                justifyContent: "center",
+              }}>
+              <Text>No conversations found</Text>
+            </Box>
+          );
+        } else {
+          console.log('[ConversationsNavbar] Rendering ConversationsList with:', conversations);
+          return <ConversationsList conversations={conversations} />;
+        }
+      })()}
     </ContentLayout>
   );
 };

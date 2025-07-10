@@ -1,14 +1,14 @@
 import type { Conversation } from "@xmtp/browser-sdk";
-import { useMemo, type ComponentProps } from "react";
+import React, { useMemo, type ComponentProps } from "react";
 import { useParams } from "react-router";
 import { Virtuoso } from "react-virtuoso";
 import type { ContentTypes } from "@/contexts/XMTPContext";
 import { ConversationCard } from "./ConversationCard";
 import classes from "./ConversationList.module.css";
 
-const List = (props: ComponentProps<"div">) => {
-  return <div className={classes.root} {...props} />;
-};
+const List = React.forwardRef<HTMLDivElement, ComponentProps<"div">>(
+  (props, ref) => <div ref={ref} className={classes.root} {...props} />
+);
 
 export type ConversationsListProps = {
   conversations: Conversation<ContentTypes>[];
