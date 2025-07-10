@@ -1,14 +1,21 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Stack, Text, Title, TextInput, Button, Alert, Radio, ScrollArea, Group } from "@mantine/core";
+import emojiRegex from 'emoji-regex';
 
 const ensDomain = import.meta.env.VITE_ENS_DOMAIN || "inbox.eth";
 
 function isValidSubname(name: string) {
-  // Only allow valid ENS subnames (no dots, valid chars, non-empty)
-  return !!name && /^[a-z0-9-]+$/i.test(name);
+  if (!name) return false;
+  // Remove all emojis from the string
+  const emojiRe = emojiRegex();
+  const nameWithoutEmojis = name.replace(emojiRe, '');
+  // Check that the rest contains only allowed characters
+  const allowedRe = /^[a-zA-Z0-9-]+$/;
+  // The name is valid if the non-emoji part is allowed and there are no dots or spaces
+  return allowedRe.test(nameWithoutEmojis);
 }
 
-export const ENSRegistration: React.FC<{ address: string }> = ({ address }) => {
+export const ENSRegistration: React.FC<{ address: string; onNameSelected?: (name: string | null) => void }> = ({ address, onNameSelected }) => {
   const [subname, setSubname] = useState("");
   const [checking, setChecking] = useState(false);
   const [registering, setRegistering] = useState(false);
@@ -19,6 +26,7 @@ export const ENSRegistration: React.FC<{ address: string }> = ({ address }) => {
   const [selectedName, setSelectedName] = useState<string | null>(null);
   const [showRegistration, setShowRegistration] = useState(true);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const [subnameTouched, setSubnameTouched] = useState(false);
 
   const fullENS = subname ? `${subname}.${ensDomain}` : "";
 
@@ -77,6 +85,13 @@ export const ENSRegistration: React.FC<{ address: string }> = ({ address }) => {
     };
   }, [subname, showRegistration]);
 
+  // Notify parent when selectedName changes
+  useEffect(() => {
+    if (onNameSelected) {
+      onNameSelected(selectedName);
+    }
+  }, [selectedName, onNameSelected]);
+
   const handleRegister = async () => {
     setError(null);
     setSuccess(null);
@@ -92,15 +107,16 @@ export const ENSRegistration: React.FC<{ address: string }> = ({ address }) => {
         setError(data.error || "Registration failed. Try again.");
         setSuccess(null);
       } else {
-        setSuccess(`Successfully registered ${fullENS} to ${address}`);
+        setSuccess('registered');
         setError(null);
-        // Optionally, update existingNames
+        setSubname("");
         setExistingNames((prev) => [...prev, fullENS]);
         setShowRegistration(false);
         setSelectedName(fullENS);
+        if (onNameSelected) onNameSelected(fullENS);
       }
     } catch (e) {
-      setError("Registration failed. Network error.");
+      setError("Network error");
       setSuccess(null);
     }
     setRegistering(false);
@@ -121,6 +137,7 @@ export const ENSRegistration: React.FC<{ address: string }> = ({ address }) => {
                 setShowRegistration(false);
                 setError(null);
                 setSuccess(null);
+                if (onNameSelected) onNameSelected(value);
               }}
             >
               <Stack>
@@ -131,7 +148,7 @@ export const ENSRegistration: React.FC<{ address: string }> = ({ address }) => {
             </Radio.Group>
           </ScrollArea>
           <Group justify="flex-end" mt={4}>
-            <Button size="xs" variant="subtle" onClick={() => { setShowRegistration(true); setSelectedName(null); }}>Register new name</Button>
+            <Button size="xs" variant="subtle" onClick={() => { setShowRegistration(true); setSelectedName(null); if (onNameSelected) onNameSelected(null); }}>Register new name</Button>
           </Group>
         </Stack>
       )}
@@ -146,11 +163,17 @@ export const ENSRegistration: React.FC<{ address: string }> = ({ address }) => {
               setAvailable(null);
               setError(null);
               setSuccess(null);
+              setSubnameTouched(true);
             }}
             disabled={registering}
             error={!!error && error}
             w="100%"
           />
+          {subnameTouched && subname && !isValidSubname(subname) && (
+            <Alert color="red" w="100%" mt={4}>
+              Invalid ENS subname. Only letters, numbers, hyphens, and emojis are allowed. No dots or spaces.
+            </Alert>
+          )}
           {subname && (
             <Text size="xs" c="dimmed" mb={-8}>
               Full ENS: <b>{fullENS}</b>
@@ -181,22 +204,20 @@ export const ENSRegistration: React.FC<{ address: string }> = ({ address }) => {
           >
             Register ENS
           </Button>
-          {success && (
-            <Alert color="green" w="100%" mt={4}>
-              {success}
-            </Alert>
-          )}
-          {error && !registering && available !== false && (
-            <Alert color="red" w="100%" mt={4}>
-              {error}
-            </Alert>
-          )}
         </>
       )}
-      {selectedName && !showRegistration && (
+      {/* Show success alert only after registration, not when selecting existing */}
+      {success === 'registered' && selectedName && !showRegistration && (
+        <Alert color="green" w="100%" mt={4}>
+          Successfully registered and selected <b>{selectedName}</b>
+          <Button size="xs" variant="subtle" ml={8} onClick={() => { setShowRegistration(true); setSelectedName(null); setSuccess(null); if (onNameSelected) onNameSelected(null); }}>Change</Button>
+        </Alert>
+      )}
+      {/* Show selected ENS alert when picking existing name */}
+      {!success && selectedName && !showRegistration && (
         <Alert color="green" w="100%" mt={4}>
           Selected ENS: <b>{selectedName}</b>
-          <Button size="xs" variant="subtle" ml={8} onClick={() => { setShowRegistration(true); setSelectedName(null); }}>Change</Button>
+          <Button size="xs" variant="subtle" ml={8} onClick={() => { setShowRegistration(true); setSelectedName(null); if (onNameSelected) onNameSelected(null); }}>Change</Button>
         </Alert>
       )}
     </Stack>

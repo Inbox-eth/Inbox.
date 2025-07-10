@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   LoadingOverlay,
   Stack,
@@ -17,6 +17,7 @@ import { ENSRegistration } from "@/components/App/ENSRegistration";
 import { useConnection } from "@/contexts/ConnectionProvider";
 
 export const Welcome = () => {
+  const [selectedENS, setSelectedENS] = useState<string | null>(null);
   const { ready, authenticated, account, disconnecting, handleDisconnect } = useConnection();
   const navigate = useNavigate();
   const px = useMatches({ base: "5%", sm: "10%" });
@@ -83,12 +84,21 @@ export const Welcome = () => {
               </Button>
             </Group>
             {/* ENS Registration Step (optional) */}
-            {ensRequired && <ENSRegistration address={account.address || ''} />}
+            {ensRequired && (
+              <ENSRegistration address={account.address || ''} onNameSelected={setSelectedENS} />
+            )}
           </Stack>
         )}
         {/* Step 3: Proceed to Inbox button (only if ENS is required) */}
         {isWalletConnected && ensRequired && (
-          <Button size="md" mt="xl" onClick={() => navigate("/conversations")}>Proceed to Inbox</Button>
+          <Button
+            size="md"
+            mt="xl"
+            onClick={() => navigate("/conversations")}
+            disabled={!selectedENS}
+          >
+            Proceed to Inbox
+          </Button>
         )}
         <Text fs="italic" size="xs" mt="xl">
           This is a simple inbox app built with XMTP. It is not affiliated with XMTP.
