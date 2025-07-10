@@ -88,6 +88,21 @@ export const MessageContent: React.FC<MessageContentProps> = ({
     );
   }
 
+  if (
+    message.contentType?.authorityId === "xmtp.org" &&
+    message.contentType?.typeId === "text"
+  ) {
+    return (
+      <MessageContentWrapper
+        align={align}
+        senderInboxId={senderInboxId}
+        sentAtNs={message.sentAtNs}
+      >
+        <TextContent text={message.content as string} />
+      </MessageContentWrapper>
+    );
+  }
+
   if (typeof message.content === "string") {
     return (
       <MessageContentWrapper

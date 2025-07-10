@@ -3,10 +3,11 @@ import { useCallback, useMemo, useRef, type ComponentProps } from "react";
 import { Virtuoso, type VirtuosoHandle } from "react-virtuoso";
 import { Message } from "./Message";
 import classes from "./MessageList.module.css";
+import React from "react";
 
-const List = (props: ComponentProps<"div">) => {
-  return <div className={classes.root} {...props} />;
-};
+const List = React.forwardRef<HTMLDivElement, ComponentProps<"div">>((props, ref) => (
+  <div ref={ref} className={classes.root} {...props} />
+));
 
 export type MessageListProps = {
   messages: DecodedMessage[];
@@ -23,6 +24,7 @@ export const MessageList: React.FC<MessageListProps> = ({ messages }) => {
     const map = new Map<string, number>();
     messageArray.forEach((message, index) => {
       map.set(message.id, index);
+      console.log("message", message.id, index, message.sentAtNs, message.contentType?.authorityId, message.contentType?.typeId, message.contentType?.versionMajor, message.contentType?.versionMinor, message.content, typeof message.content);
     });
     return map;
   }, [messageArray]);
@@ -46,13 +48,25 @@ export const MessageList: React.FC<MessageListProps> = ({ messages }) => {
       }}
       initialTopMostItemIndex={messageArray.length - 1}
       data={messageArray}
-      itemContent={(_, message) => (
-        <Message
-          key={message.id || message.sentAtNs?.toString() || Math.random()}
-          message={message}
-          scrollToMessage={scrollToMessage}
-        />
-      )}
+      itemContent={(_, message) => {
+        console.log(
+          "Rendering message",
+          message.id,
+          message.contentType?.authorityId,
+          message.contentType?.typeId,
+          message.contentType?.versionMajor,
+          message.contentType?.versionMinor,
+          message.content,
+          typeof message.content
+        );
+        return (
+          <Message
+            key={message.id || message.sentAtNs?.toString() || Math.random()}
+            message={message}
+            scrollToMessage={scrollToMessage}
+          />
+        );
+      }}
     />
   );
 };
