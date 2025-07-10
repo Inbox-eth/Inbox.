@@ -2,7 +2,7 @@
 
 xmpt v3 inbox built with privy & ens registartion
 
-The app is built using the [XMTP client browser SDK](/sdks/browser-sdk/README.md)
+The app is built using the [XMTP client browser SDK](https://github.com/xmtp/xmtp-js/tree/main/sdks/browser-sdk)
 
 
 
