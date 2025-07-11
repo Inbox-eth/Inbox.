@@ -90,6 +90,8 @@ export const ConnectionProvider: React.FC<{ children: ReactNode }> = ({ children
         disconnect();
         setClient(undefined);
       }
+      console.log('[ConnectionProvider][DEBUG] About to initialize XMTP client. Wallet address:', account.address, 'ChainId:', account.chainId, 'useSCW:', useSCW);
+      console.log('[ConnectionProvider][DEBUG] Current client:', client);
       console.log('[ConnectionProvider] Initializing XMTP client with wallet signer', { address: account.address, chainId: account.chainId, useSCW });
       void initialize({
         dbEncryptionKey: encryptionKey ? hexToUint8Array(encryptionKey) : undefined,

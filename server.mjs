@@ -4,9 +4,14 @@ import dotenv from 'dotenv';
 import NameStone from '@namestone/namestone-sdk';
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 dotenv.config();
 dotenv.config({ path: '.env.local', override: true }); // Loads .env.local and overrides
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(cors());
@@ -89,4 +94,13 @@ app.get('/api/user-mapping', async (req, res) => {
   res.status(404).json({ error: 'Not found' });
 });
 
-app.listen(3001, () => console.log('API running on port 3001')); 
+
+// Serve static files from the 'dist' directory
+app.use(express.static(path.join(__dirname, 'dist')));
+
+// Catch-all route to serve index.html for SPA routing
+app.get(/(.*)/, (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
+
+app.listen(3001, () => console.log('InboxApp server running on port 3001')); 

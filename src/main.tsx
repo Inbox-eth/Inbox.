@@ -33,6 +33,8 @@ import { XMTPProvider } from "@/contexts/XMTPContext";
 import { PrivyProvider } from "@privy-io/react-auth";
 import { ConnectionProvider } from "@/contexts/ConnectionProvider";
 
+console.log('[xmtp.chat] import.meta.env', import.meta.env);
+
 const queryClient = new QueryClient();
 
 export const config = createConfig({

@@ -45,6 +45,7 @@ export const useConversations = () => {
 
     try {
       const convos = await client.conversations.list(options);
+      console.log('[useConversations] list fetched', convos.length, 'conversations:', convos.map(c => c.id));
       setConversations(convos);
       return convos;
     } finally {
@@ -162,7 +163,17 @@ export const useConversations = () => {
           conversation.metadata?.conversationType === "dm" ||
           conversation.metadata?.conversationType === "group";
         if (shouldAdd) {
-          setConversations((prev) => [conversation, ...prev]);
+          console.log('[useConversations] stream received conversation:', conversation.id, conversation);
+          setConversations((prev) => {
+            const exists = prev.some((c) => c.id === conversation.id);
+            if (exists) {
+              console.log('[useConversations] stream: conversation already exists, skipping add:', conversation.id);
+              return prev;
+            }
+            const updated = [conversation, ...prev];
+            console.log('[useConversations] stream: updated conversations list:', updated.map(c => c.id));
+            return updated;
+          });
         }
       }
     };
