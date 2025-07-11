@@ -36,6 +36,7 @@
     "@xmtp/content-type-text": "^2.0.2",
     "@xmtp/content-type-transaction-reference": "^2.0.2",
     "@xmtp/content-type-wallet-send-calls": "^2.0.0",
+    "cors": "^2.8.5",
     "date-fns": "^4.1.0",
     "emoji-regex": "^10.4.0",
     "express": "^5.1.0",
