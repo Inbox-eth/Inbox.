@@ -14,10 +14,14 @@ At the moment it has all the limitations of xmtp.chat: This React app isn't a co
 ## Roadmap
 - [x] Wallet onboarding (Privy)
 - [x] ENS subname registration (NameStone)
-- [ ] Messaging and inbox (XMTP V3)
+- [x] Messaging and inbox (XMTP V3)
 - [ ] Notification system
 - [ ] Documentation and coverage
 
+
+## Bugs
+
+Currently there is an issue with syncing conversations. Working on it.
 
 ## License
 MIT
