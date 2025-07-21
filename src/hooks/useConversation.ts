@@ -3,8 +3,39 @@ import type {
   DecodedMessage,
   SafeListMessagesOptions,
 } from "@xmtp/browser-sdk";
+import {
+  ContentTypeRemoteAttachment,
+  RemoteAttachmentCodec,
+  AttachmentCodec,
+} from "@xmtp/content-type-remote-attachment";
 import { useState } from "react";
 import { useXMTP, type ContentTypes } from "@/contexts/XMTPContext";
+
+async function uploadToServer(buffer: ArrayBuffer, filename: string): Promise<string> {
+  try {
+    // Create a File object from the buffer
+    const file = new File([buffer], filename);
+    
+    // Create FormData and upload to our server
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const response = await fetch('/api/upload-attachment', {
+      method: 'POST',
+      body: formData,
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to upload file');
+    }
+    
+    const { url } = await response.json();
+    return url;
+  } catch (error) {
+    console.error('Failed to upload file:', error);
+    throw new Error('Failed to upload file to server');
+  }
+}
 
 export const useConversation = (conversation?: Conversation<ContentTypes>) => {
   const { client } = useXMTP();
@@ -65,6 +96,70 @@ export const useConversation = (conversation?: Conversation<ContentTypes>) => {
     }
   };
 
+  const sendAttachment = async (file: File, message?: string) => {
+    if (!client || !conversation) {
+      return;
+    }
+
+    setSending(true);
+
+    try {
+      // Convert file to Uint8Array
+      const data = await new Promise<ArrayBuffer>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          if (reader.result instanceof ArrayBuffer) {
+            resolve(reader.result);
+          } else {
+            reject(new Error("Not an ArrayBuffer"));
+          }
+        };
+        reader.readAsArrayBuffer(file);
+      });
+
+      const attachment = {
+        filename: file.name,
+        mimeType: file.type,
+        data: new Uint8Array(data),
+      };
+
+      // Encrypt the attachment
+      const encryptedEncoded = await RemoteAttachmentCodec.encodeEncrypted(
+        attachment,
+        new AttachmentCodec()
+      );
+
+      // Upload encrypted file to server (which uploads to IPFS) and get public URL
+      const url = await uploadToServer(encryptedEncoded.payload.buffer as ArrayBuffer, file.name);
+
+      const remoteAttachment = {
+        url,
+        contentDigest: encryptedEncoded.digest,
+        salt: encryptedEncoded.salt,
+        nonce: encryptedEncoded.nonce,
+        secret: encryptedEncoded.secret,
+        scheme: "https://", // IPFS URLs are always HTTPS
+        filename: attachment.filename,
+        contentLength: attachment.data.byteLength,
+        mimeType: attachment.mimeType,
+      };
+
+      console.log('remoteAttachment', remoteAttachment);
+
+      await conversation.send(remoteAttachment, ContentTypeRemoteAttachment);
+
+      // If there's a message, send it as a separate text message
+      if (message && message.trim()) {
+        await conversation.send(message);
+      }
+    } catch (error) {
+      console.error("Failed to send attachment:", error);
+      throw error;
+    } finally {
+      setSending(false);
+    }
+  };
+
   const streamMessages = async () => {
     const noop = () => {};
     if (!client) {
@@ -94,6 +189,7 @@ export const useConversation = (conversation?: Conversation<ContentTypes>) => {
     loading,
     messages,
     send,
+    sendAttachment,
     sending,
     streamMessages,
     sync,

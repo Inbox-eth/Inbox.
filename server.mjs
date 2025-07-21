@@ -6,6 +6,10 @@ import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import multer from 'multer';
+import fs from 'fs';
+import { createThirdwebClient } from 'thirdweb';
+import { upload as uploadToThirdweb } from 'thirdweb/storage';
 
 dotenv.config();
 dotenv.config({ path: '.env.local', override: true }); // Loads .env.local and overrides
@@ -17,7 +21,29 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Configure multer for file uploads with disk storage
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const uploadDir = path.join(__dirname, 'uploads');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + '-' + file.originalname);
+  }
+});
+
+const upload = multer({ storage: storage });
+
 const ns = new NameStone(process.env.NAMESTONE_API_KEY, { network: 'sepolia' });
+
+// Initialize thirdweb client for storage
+const thirdwebClient = createThirdwebClient({
+  clientId: process.env.THIRDWEB_CLIENT_ID,
+});
 
 // Open SQLite database
 let db;
@@ -94,6 +120,48 @@ app.get('/api/user-mapping', async (req, res) => {
   res.status(404).json({ error: 'Not found' });
 });
 
+app.post('/api/upload-attachment', upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+    // Read the file buffer from disk
+    const fileBuffer = fs.readFileSync(req.file.path);
+
+    // Create a File or Blob-like object for thirdweb
+    const fileForUpload = {
+      name: req.file.originalname,
+      data: fileBuffer,
+      type: req.file.mimetype,
+    };
+
+    // Upload file to thirdweb storage (IPFS)
+    const uris = await uploadToThirdweb({
+      client: thirdwebClient,
+      files: [fileForUpload],
+    });
+    console.log('uploadToThirdweb uris:', uris);
+    let url = uris; // <-- treat as string, not array
+    console.log('Initial url:', url);
+    // Convert ipfs:// to https:// gateway
+    if (url && url.startsWith('ipfs://')) {
+      url = url.replace('ipfs://', 'https://ipfs.io/ipfs/');
+    }
+    console.log('Final url:', url);
+    fs.unlink(req.file.path, (err) => {
+      if (err) {
+        console.error('Failed to delete local uploaded file:', err);
+      }
+    });
+    res.json({ url });
+  } catch (err) {
+    console.error('File upload error:', err);
+    res.status(500).json({ error: 'Upload failed' });
+  }
+});
+
+// Serve uploaded files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Serve static files from the 'dist' directory
 app.use(express.static(path.join(__dirname, 'dist')));

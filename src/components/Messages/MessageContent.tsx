@@ -13,6 +13,11 @@ import {
   ContentTypeWalletSendCalls,
   type WalletSendCallsParams,
 } from "@xmtp/content-type-wallet-send-calls";
+import {
+  ContentTypeRemoteAttachment,
+  type RemoteAttachment,
+} from "@xmtp/content-type-remote-attachment";
+import { AttachmentContent } from "@/components/Messages/AttachmentContent";
 import { FallbackContent } from "@/components/Messages/FallbackContent";
 import { GroupUpdatedContent } from "@/components/Messages/GroupUpdatedContent";
 import {
@@ -83,6 +88,19 @@ export const MessageContent: React.FC<MessageContentProps> = ({
           align={align}
           message={message as DecodedMessage<Reply>}
           scrollToMessage={scrollToMessage}
+        />
+      </MessageContentWrapper>
+    );
+  }
+
+  if (message.contentType.sameAs(ContentTypeRemoteAttachment)) {
+    return (
+      <MessageContentWrapper
+        align={align}
+        senderInboxId={senderInboxId}
+        sentAtNs={message.sentAtNs}>
+        <AttachmentContent
+          attachment={message.content as RemoteAttachment}
         />
       </MessageContentWrapper>
     );
