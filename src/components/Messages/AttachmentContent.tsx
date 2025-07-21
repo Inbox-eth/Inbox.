@@ -10,12 +10,27 @@ export type AttachmentContentProps = {
   attachment: RemoteAttachment;
 };
 
+// Utility to fetch with retry for IPFS propagation delays
+async function fetchWithRetry(url: string, options: RequestInit = {}, retries = 5, delay = 2000) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(url, options);
+      if (response.ok) return response;
+    } catch (e) {
+      // ignore
+    }
+    if (i < retries - 1) await new Promise(res => setTimeout(res, delay));
+  }
+  throw new Error('File not available on IPFS gateway after several attempts');
+}
+
 export const AttachmentContent: React.FC<AttachmentContentProps> = ({
   attachment,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [decryptedMimeType, setDecryptedMimeType] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   // Minimal CodecRegistry for attachments
   const attachmentCodec = new AttachmentCodecType();
@@ -39,9 +54,12 @@ export const AttachmentContent: React.FC<AttachmentContentProps> = ({
 
   useEffect(() => {
     let cancelled = false;
+    setError(null);
     const tryAutoPreview = async () => {
       setIsLoading(true);
       try {
+        const response = await fetchWithRetry(attachment.url);
+        const encryptedBuffer = await response.arrayBuffer();
         const decrypted = await RemoteAttachmentCodec.load(attachment, codecRegistry) as any;
         if (cancelled) return;
         setDecryptedMimeType(decrypted.mimeType);
@@ -55,7 +73,7 @@ export const AttachmentContent: React.FC<AttachmentContentProps> = ({
           setPreviewUrl(url);
         }
       } catch (e) {
-        // ignore
+        if (!cancelled) setError('File is still propagating on the IPFS network. Please try again in a few seconds.');
       } finally {
         if (!cancelled) setIsLoading(false);
       }
@@ -70,8 +88,10 @@ export const AttachmentContent: React.FC<AttachmentContentProps> = ({
 
   const handleDownload = async () => {
     setIsLoading(true);
+    setError(null);
     try {
-      // Use RemoteAttachmentCodec.load to decrypt
+      const response = await fetchWithRetry(attachment.url);
+      const encryptedBuffer = await response.arrayBuffer();
       const decrypted = await RemoteAttachmentCodec.load(attachment, codecRegistry) as any;
       setDecryptedMimeType(decrypted.mimeType);
       const blob = new Blob([decrypted.data], { type: decrypted.mimeType });
@@ -83,8 +103,9 @@ export const AttachmentContent: React.FC<AttachmentContentProps> = ({
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Failed to download attachment:", error);
+    } catch (e) {
+      setError('File is still propagating on the IPFS network. Please try again in a few seconds.');
+      console.error("Failed to download attachment:", e);
     } finally {
       setIsLoading(false);
     }
@@ -137,31 +158,24 @@ export const AttachmentContent: React.FC<AttachmentContentProps> = ({
           </Box>
         </Group>
         
-        <Group gap="xs">
-          {isImage && (
-            <Button
-              size="xs"
-              variant="light"
-              onClick={handlePreview}
-              loading={isLoading}
-            >
-              Preview
-            </Button>
-          )}
+        <Group>
           <Button
             size="xs"
             variant="light"
             onClick={handleDownload}
             loading={isLoading}
-            leftSection={<IconDownload size={14} />}
           >
-            Download
+            <IconDownload size={14} />
           </Button>
         </Group>
       </Group>
 
+      {error && (
+        <Text color="red" size="xs" mt="xs">{error}</Text>
+      )}
+
       {previewUrl && isImage && (
-        <Box mt="sm" style={{ borderRadius: 8, overflow: 'hidden', border: '1px solid #eee', background: '#fafbfc', maxWidth: 320, maxHeight: 240, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Box mt="sm" style={{ borderRadius: 8, overflow: 'hidden', maxWidth: 320, maxHeight: 240, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Image
             src={previewUrl}
             alt={attachment.filename || "Attachment preview"}
@@ -180,7 +194,7 @@ export const AttachmentContent: React.FC<AttachmentContentProps> = ({
         </Box>
       )}
       {previewUrl && isAudio && (
-        <Box mt="sm" style={{ borderRadius: 8, overflow: 'hidden', border: '1px solid #eee', background: '#fafbfc', maxWidth: 320, maxHeight: 80, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Box mt="sm" style={{ borderRadius: 8, overflow: 'hidden', maxWidth: 320, maxHeight: 80, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <audio
             src={previewUrl}
             controls
