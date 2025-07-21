@@ -10,6 +10,7 @@ import multer from 'multer';
 import fs from 'fs';
 import { createThirdwebClient } from 'thirdweb';
 import { upload as uploadToThirdweb } from 'thirdweb/storage';
+import slugify from 'slugify';
 
 dotenv.config();
 dotenv.config({ path: '.env.local', override: true }); // Loads .env.local and overrides
@@ -125,35 +126,33 @@ app.post('/api/upload-attachment', upload.single('file'), async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
     }
+    // Sanitize filename to ASCII for IPFS upload
+    const originalFilename = req.file.originalname;
+    const safeFilename = slugify(originalFilename, { replacement: '_', remove: /[^a-zA-Z0-9._-]/g, lower: false });
     // Read the file buffer from disk
     const fileBuffer = fs.readFileSync(req.file.path);
-
     // Create a File or Blob-like object for thirdweb
     const fileForUpload = {
-      name: req.file.originalname,
+      name: safeFilename,
       data: fileBuffer,
       type: req.file.mimetype,
     };
-
     // Upload file to thirdweb storage (IPFS)
     const uris = await uploadToThirdweb({
       client: thirdwebClient,
       files: [fileForUpload],
     });
-    console.log('uploadToThirdweb uris:', uris);
-    let url = uris; // <-- treat as string, not array
-    console.log('Initial url:', url);
-    // Convert ipfs:// to https:// gateway
+    let url = uris;
     if (url && url.startsWith('ipfs://')) {
       url = url.replace('ipfs://', 'https://ipfs.io/ipfs/');
     }
-    console.log('Final url:', url);
     fs.unlink(req.file.path, (err) => {
       if (err) {
         console.error('Failed to delete local uploaded file:', err);
       }
     });
-    res.json({ url });
+    // Return both the URL and the original filename for display/download
+    res.json({ url, originalFilename });
   } catch (err) {
     console.error('File upload error:', err);
     res.status(500).json({ error: 'Upload failed' });
