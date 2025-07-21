@@ -1,12 +1,12 @@
 import { Button, Group, TextInput, ActionIcon, Box, Text } from "@mantine/core";
 import { IconPaperclip, IconX } from "@tabler/icons-react";
 import type { Conversation } from "@xmtp/browser-sdk";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import type { ContentTypes } from "@/contexts/XMTPContext";
 import { useConversation } from "@/hooks/useConversation";
 import classes from "./Composer.module.css";
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_FILE_SIZE = 100 * 1024 * 1024; // 10MB
 const ALLOWED_TYPES = [
   "image/*",
   "video/*", 
@@ -28,8 +28,19 @@ export const Composer: React.FC<ComposerProps> = ({ conversation }) => {
   const [message, setMessage] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (selectedFile) {
+      const url = URL.createObjectURL(selectedFile);
+      setPreviewUrl(url);
+      return () => URL.revokeObjectURL(url);
+    } else {
+      setPreviewUrl(null);
+    }
+  }, [selectedFile]);
 
   const validateFile = (file: File): string | null => {
     if (file.size > MAX_FILE_SIZE) {
@@ -115,6 +126,12 @@ export const Composer: React.FC<ComposerProps> = ({ conversation }) => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
+  // Type detection for preview
+  const mimeType = selectedFile?.type || "";
+  const isImage = mimeType.startsWith("image/");
+  const isVideo = mimeType.startsWith("video/");
+  const isAudio = mimeType.startsWith("audio/");
+
   return (
     <Box>
       {fileError && (
@@ -122,6 +139,20 @@ export const Composer: React.FC<ComposerProps> = ({ conversation }) => {
           <Text size="sm" c="red">
             {fileError}
           </Text>
+        </Box>
+      )}
+      
+      {selectedFile && previewUrl && (
+        <Box p="xs" bg="gray.0" style={{ borderBottom: "1px solid var(--mantine-color-gray-3)" }}>
+          {isImage && (
+            <img src={previewUrl} alt="preview" style={{ maxWidth: 200, maxHeight: 200, borderRadius: 8 }} />
+          )}
+          {isVideo && (
+            <video src={previewUrl} controls style={{ maxWidth: 300, maxHeight: 200, borderRadius: 8 }} />
+          )}
+          {isAudio && (
+            <audio src={previewUrl} controls style={{ width: 300 }} />
+          )}
         </Box>
       )}
       
