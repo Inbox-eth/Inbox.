@@ -1,3 +1,4 @@
+import React from "react";
 import { Box, Button, Group, Text, Image, Paper } from "@mantine/core";
 import { IconDownload, IconFile, IconPhoto } from "@tabler/icons-react";
 import type { RemoteAttachment } from "@xmtp/content-type-remote-attachment";
@@ -24,7 +25,7 @@ async function fetchWithRetry(url: string, options: RequestInit = {}, retries = 
   throw new Error('File not available on IPFS gateway after several attempts');
 }
 
-export const AttachmentContent: React.FC<AttachmentContentProps> = ({
+export const AttachmentContent: React.FC<AttachmentContentProps> = React.memo(({
   attachment,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -204,4 +205,15 @@ export const AttachmentContent: React.FC<AttachmentContentProps> = ({
       )}
     </Paper>
   );
-}; 
+}, (prevProps, nextProps) => {
+  const same = prevProps.attachment.url === nextProps.attachment.url && prevProps.attachment.contentDigest === nextProps.attachment.contentDigest;
+  if (!same) {
+    console.log('[AttachmentContent.memo] Re-render: ', {
+      prevUrl: prevProps.attachment.url,
+      nextUrl: nextProps.attachment.url,
+      prevDigest: prevProps.attachment.contentDigest,
+      nextDigest: nextProps.attachment.contentDigest
+    });
+  }
+  return same;
+}); 

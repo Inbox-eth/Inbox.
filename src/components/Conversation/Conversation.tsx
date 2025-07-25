@@ -4,7 +4,7 @@ import {
   type Client,
   type Conversation as XmtpConversation,
 } from "@xmtp/browser-sdk";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { Outlet, useOutletContext } from "react-router";
 import { ConversationMenu } from "@/components/Conversation/ConversationMenu";
 import { Messages } from "@/components/Messages/Messages";
@@ -68,6 +68,8 @@ export const Conversation: React.FC<ConversationProps> = ({ conversation }) => {
     }
   }, [conversation.id]);
 
+  const memoizedMessages = useMemo(() => messages, [messages]);
+
   return (
     <>
       <ContentLayout
@@ -85,7 +87,7 @@ export const Conversation: React.FC<ConversationProps> = ({ conversation }) => {
         footer={<Composer conversation={conversation} />}
         withScrollArea={false}>
         <ConversationProvider conversation={conversation}>
-          <Messages messages={messages} />
+          <Messages messages={memoizedMessages} />
         </ConversationProvider>
       </ContentLayout>
       <Outlet context={{ conversation, client }} />

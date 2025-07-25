@@ -1,3 +1,4 @@
+import React from "react";
 import { Code } from "@mantine/core";
 import type { DecodedMessage } from "@xmtp/browser-sdk";
 import {
@@ -36,7 +37,7 @@ export type MessageContentProps = {
   scrollToMessage: (id: string) => void;
 };
 
-export const MessageContent: React.FC<MessageContentProps> = ({
+export const MessageContent: React.FC<MessageContentProps> = React.memo(({
   message,
   align,
   senderInboxId,
@@ -156,4 +157,19 @@ export const MessageContent: React.FC<MessageContentProps> = ({
       </Code>
     </MessageContentWrapper>
   );
-};
+}, (prevProps, nextProps) => {
+  const same = prevProps.message.id === nextProps.message.id && prevProps.align === nextProps.align && prevProps.senderInboxId === nextProps.senderInboxId && prevProps.scrollToMessage === nextProps.scrollToMessage;
+  if (!same) {
+    console.log('[MessageContent.memo] Re-render: ', {
+      prevId: prevProps.message.id,
+      nextId: nextProps.message.id,
+      prevAlign: prevProps.align,
+      nextAlign: nextProps.align,
+      prevSender: prevProps.senderInboxId,
+      nextSender: nextProps.senderInboxId,
+      prevScroll: prevProps.scrollToMessage,
+      nextScroll: nextProps.scrollToMessage
+    });
+  }
+  return same;
+});

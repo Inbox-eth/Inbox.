@@ -1,3 +1,4 @@
+import React from "react";
 import { Box } from "@mantine/core";
 import type { Client, DecodedMessage } from "@xmtp/browser-sdk";
 import { useNavigate, useOutletContext } from "react-router";
@@ -9,7 +10,7 @@ export type MessageProps = {
   scrollToMessage: (id: string) => void;
 };
 
-export const Message: React.FC<MessageProps> = ({
+export const Message: React.FC<MessageProps> = React.memo(({
   message,
   scrollToMessage,
 }) => {
@@ -42,4 +43,15 @@ export const Message: React.FC<MessageProps> = ({
       />
     </Box>
   );
-};
+}, (prevProps, nextProps) => {
+  const same = prevProps.message.id === nextProps.message.id && prevProps.scrollToMessage === nextProps.scrollToMessage;
+  if (!same) {
+    console.log('[Message.memo] Re-render: ', {
+      prevId: prevProps.message.id,
+      nextId: nextProps.message.id,
+      prevScroll: prevProps.scrollToMessage,
+      nextScroll: nextProps.scrollToMessage
+    });
+  }
+  return same;
+});
