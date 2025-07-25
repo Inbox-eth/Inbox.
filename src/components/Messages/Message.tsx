@@ -14,6 +14,10 @@ export const Message: React.FC<MessageProps> = React.memo(({
   message,
   scrollToMessage,
 }) => {
+  // Log when this component renders, with stack trace
+  console.log(`[RENDER] Message component for id: ${message.id}`);
+  // Uncomment the next line for a stack trace if needed:
+  // console.trace(`[RENDER TRACE] Message component for id: ${message.id}`);
   const { client } = useOutletContext<{ client: Client }>();
   const isSender = client.inboxId === message.senderInboxId;
   const align = isSender ? "right" : "left";
