@@ -15,13 +15,9 @@ export const ConversationsMenu: React.FC<ConversationsMenuProps> = ({
   return (
     <Menu shadow="md" disabled={disabled} position="bottom-end">
       <Menu.Target>
-        <Button
-          px="var(--mantine-spacing-xxxs)"
-          radius="md"
-          size="xs"
-          variant="default">
+        <button className="btn btn-secondary" type="button">
           <IconDots />
-        </Button>
+        </button>
       </Menu.Target>
       <Menu.Dropdown miw={200}>
         <Menu.Label>Actions</Menu.Label>

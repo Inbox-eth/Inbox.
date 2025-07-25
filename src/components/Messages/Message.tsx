@@ -24,7 +24,6 @@ export const Message: React.FC<MessageProps> = React.memo(({
   const navigate = useNavigate();
   return (
     <Box
-      p="md"
       tabIndex={0}
       className={classes.root}
       onKeyDown={(e) => {

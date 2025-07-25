@@ -1,7 +1,11 @@
+.root {
+  background: #f8fafc;
+}
+
 .root > * {
-  padding-top: var(--mantine-spacing-sm);
+  padding-top: 1rem;
 }
 
 .root > *:last-child {
-  padding-bottom: var(--mantine-spacing-sm);
+  padding-bottom: 1rem;
 }

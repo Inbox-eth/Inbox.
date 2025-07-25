@@ -12,20 +12,22 @@ export const SelectConversation = () => {
           or...
         </Text>
         <Stack gap="xs">
-          <Button
-            size="xs"
+          <button
+            className="btn btn-primary"
+            type="button"
             onClick={() => {
               void navigate("/conversations/new-group");
             }}>
             Create a new group
-          </Button>
-          <Button
-            size="xs"
+          </button>
+          <button
+            className="btn btn-primary"
+            type="button"
             onClick={() => {
               void navigate("/conversations/new-dm");
             }}>
             Create a new direct message
-          </Button>
+          </button>
         </Stack>
       </Stack>
     </Stack>

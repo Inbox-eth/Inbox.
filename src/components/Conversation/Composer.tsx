@@ -171,22 +171,22 @@ export const Composer: React.FC<ComposerProps> = ({ conversation }) => {
       onDrop={handleDrop}
       style={{
         width: '100%',
-        border: isDragActive ? "2px dashed var(--mantine-color-blue-5)" : undefined,
-        background: isDragActive ? "var(--mantine-color-blue-0)" : undefined,
-        borderRadius: 8,
+        border: isDragActive ? "2px dashed #2563eb" : undefined,
+        background: isDragActive ? "#f8fafc" : undefined,
+        borderRadius: '0.5rem',
         transition: "border 0.2s, background 0.2s",
       }}
     >
       {fileError && (
-        <Box p="xs" bg="red.0" style={{ borderBottom: "1px solid var(--mantine-color-red-3)" }}>
-          <Text size="sm" c="red">
+        <Box className={classes.error}>
+          <Text size="sm">
             {fileError}
           </Text>
         </Box>
       )}
       
       {selectedFile && previewUrl && (
-        <Box p="xs" bg="gray.0" style={{ borderBottom: "1px solid var(--mantine-color-gray-3)" }}>
+        <Box className={classes.preview}>
           {isImage && (
             <img src={previewUrl} alt="preview" style={{ maxWidth: 200, maxHeight: 200, borderRadius: 8 }} />
           )}
@@ -200,7 +200,7 @@ export const Composer: React.FC<ComposerProps> = ({ conversation }) => {
       )}
       
       {selectedFile && (
-        <Box p="xs" bg="gray.0" style={{ borderBottom: "1px solid var(--mantine-color-gray-3)" }}>
+        <Box className={classes.preview}>
           <Group justify="space-between" align="center">
             <Group gap="sm">
               <IconPaperclip size={16} />
@@ -208,7 +208,7 @@ export const Composer: React.FC<ComposerProps> = ({ conversation }) => {
                 <div style={{ fontSize: "0.875rem", fontWeight: 500 }}>
                   {selectedFile.name}
                 </div>
-                <div style={{ fontSize: "0.75rem", color: "var(--mantine-color-gray-6)" }}>
+                <div style={{ fontSize: "0.75rem", color: "#64748b" }}>
                   {formatFileSize(selectedFile.size)} • {selectedFile.type || "Unknown type"}
                 </div>
               </Box>
@@ -229,7 +229,6 @@ export const Composer: React.FC<ComposerProps> = ({ conversation }) => {
         align="center"
         gap="xs"
         wrap="nowrap"
-        p="md"
         className={classes.root}
         style={{ width: '100%' }}
       >
@@ -248,6 +247,7 @@ export const Composer: React.FC<ComposerProps> = ({ conversation }) => {
           disabled={sending}
           size="md"
           placeholder={selectedFile ? "Add a message (optional)..." : "Type a message..."}
+          className={classes.input}
           style={{ flex: 1, width: '100%' }}
           value={message}
           onKeyDown={handleKeyDown}
@@ -260,6 +260,7 @@ export const Composer: React.FC<ComposerProps> = ({ conversation }) => {
           disabled={(message.length === 0 && !selectedFile) || sending}
           loading={sending}
           size="md"
+          className={classes.button}
           onClick={() => void handleSend()}>
           Send
         </Button>

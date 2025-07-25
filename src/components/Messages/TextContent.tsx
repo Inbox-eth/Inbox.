@@ -12,11 +12,7 @@ export const TextContent: React.FC<TextContentProps> = ({ text }) => {
       onClick={(event) => {
         event.stopPropagation();
       }}
-      bg="var(--mantine-color-blue-filled)"
-      c="white"
-      py="xs"
-      px="sm"
-      radius="md">
+    >
       <Text
         component="pre"
         style={{

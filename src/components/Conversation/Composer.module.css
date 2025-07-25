@@ -1,3 +1,58 @@
 .root {
-  border-top: 1px solid var(--mantine-color-default-border);
+  border-top: 1px solid #e5e7eb;
+  background: #fff;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.input {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  font-weight: 400;
+  color: #0f172a;
+  outline: none;
+  transition: border 0.2s;
+}
+.input:focus {
+  border-color: #2563eb;
+}
+
+.button {
+  background: #2563eb;
+  color: #fff;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  font-weight: 500;
+  border: none;
+  transition: background 0.2s;
+}
+.button:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+.button:disabled {
+  background: #64748b;
+  color: #fff;
+  opacity: 0.7;
+}
+
+.preview {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.error {
+  background: #fef2f2;
+  color: #ef4444;
+  border: 1px solid #ef4444;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
 }

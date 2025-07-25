@@ -23,9 +23,14 @@ export const Connect = () => {
 
   return (
     <Group p="md" justify="center">
-      <Button size="md" onClick={login} disabled={!ready || authenticated}>
+      <button
+        className="btn btn-primary"
+        type="button"
+        onClick={login}
+        disabled={!ready || authenticated}
+      >
         Connect
-      </Button>
+      </button>
     </Group>
   );
 };

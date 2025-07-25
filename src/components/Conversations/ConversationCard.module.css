@@ -1,16 +1,27 @@
 .root {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 1.5rem;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  color: #0f172a;
   cursor: pointer;
+  transition: background 0.2s, border 0.2s;
 }
 
 .root:hover {
-  background-color: var(--mantine-color-default-hover);
+  background: #f8fafc;
 }
 
 .root:focus {
-  border-color: var(--mantine-primary-color-filled);
+  border-color: #2563eb;
+  outline: none;
 }
 
 .selected {
-  background-color: var(--mantine-color-default-hover);
-  border-color: var(--mantine-primary-color-filled);
+  background: #f8fafc;
+  border-color: #2563eb;
 }

@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Button, Group, Text, Image, Paper } from "@mantine/core";
+import { Box, Group, Text, Image } from "@mantine/core";
 import { IconDownload, IconFile, IconPhoto } from "@tabler/icons-react";
 import type { RemoteAttachment } from "@xmtp/content-type-remote-attachment";
 import { useState, useEffect } from "react";
@@ -141,7 +141,16 @@ export const AttachmentContent: React.FC<AttachmentContentProps> = React.memo(({
   };
 
   return (
-    <Paper p="md" withBorder>
+    <Box
+      style={{
+        background: '#fff',
+        border: '1px solid #e5e7eb',
+        borderRadius: '1rem',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+        padding: '1.5rem',
+        marginBottom: '1rem',
+      }}
+    >
       <Group justify="space-between" align="center">
         <Group gap="sm">
           {getFileIcon()}
@@ -154,21 +163,32 @@ export const AttachmentContent: React.FC<AttachmentContentProps> = React.memo(({
             </Text>
           </Box>
         </Group>
-        
         <Group>
-          <Button
-            size="xs"
-            variant="light"
+          <button
+            style={{
+              background: '#2563eb',
+              color: '#fff',
+              borderRadius: '0.5rem',
+              padding: '0.5rem 1rem',
+              fontWeight: 500,
+              border: 'none',
+              transition: 'background 0.2s',
+              cursor: 'pointer',
+              opacity: isLoading ? 0.7 : 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
             onClick={handleDownload}
-            loading={isLoading}
+            disabled={isLoading}
           >
             <IconDownload size={14} />
-          </Button>
+          </button>
         </Group>
       </Group>
 
       {error && (
-        <Text color="red" size="xs" mt="xs">{error}</Text>
+        <Text style={{ background: '#fef2f2', color: '#ef4444', border: '1px solid #ef4444', borderRadius: '0.5rem', padding: '0.75rem 1rem', marginTop: '0.5rem', fontSize: '0.875rem' }}>{error}</Text>
       )}
 
       {previewUrl && isImage && (
@@ -199,7 +219,7 @@ export const AttachmentContent: React.FC<AttachmentContentProps> = React.memo(({
           />
         </Box>
       )}
-    </Paper>
+    </Box>
   );
 }, (prevProps, nextProps) => {
   const same = prevProps.attachment.url === nextProps.attachment.url && prevProps.attachment.contentDigest === nextProps.attachment.contentDigest;

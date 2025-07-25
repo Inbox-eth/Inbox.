@@ -18,11 +18,6 @@ At the moment it has all the limitations of xmtp.chat: This React app isn't a co
 - [ ] Notification system
 - [ ] Documentation and coverage
 
-
-## Bugs
-
-Currently there is an issue with syncing conversations. Working on it.
-
 ## License
 MIT
 

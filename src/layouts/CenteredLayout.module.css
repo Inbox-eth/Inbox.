@@ -5,14 +5,23 @@
   height: 100dvh;
   width: 100dvw;
   position: relative;
+  background: #f8fafc;
+  font-family: 'Inter', system-ui, sans-serif;
 }
 
 .content {
   width: 70ch;
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 2.5rem 2rem;
+  margin-top: 4rem;
+  margin-bottom: 4rem;
 }
 
 @media screen and (max-width: 1080px) {
   .content {
     width: auto;
+    padding: 2rem 1rem;
   }
 }

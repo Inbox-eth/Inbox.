@@ -1,11 +1,19 @@
+.root {
+  background: transparent;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  color: #0f172a;
+  transition: background 0.2s, border 0.2s;
+}
+
 .root:hover {
-  background-color: light-dark(
-    var(--mantine-color-dark-light-hover),
-    var(--mantine-color-dark-6)
-  );
   cursor: pointer;
 }
 
 .root:focus {
-  border-color: var(--mantine-color-blue-outline);
+  border-color: #2563eb;
+  outline: none;
 }

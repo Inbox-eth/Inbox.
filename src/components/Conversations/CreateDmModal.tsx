@@ -87,19 +87,19 @@ export const CreateDmModal: React.FC = () => {
   const footer = useMemo(() => {
     return (
       <Group justify="flex-end" flex={1} p="md">
-        <Button variant="default" onClick={handleClose}>
+        <button className="btn btn-secondary" type="button" onClick={handleClose}>
           Cancel
-        </Button>
-        <Button
-          variant="filled"
+        </button>
+        <button
+          className="btn btn-primary"
+          type="button"
           disabled={loading || memberIdError !== null}
-          loading={loading}
           onClick={() => void handleCreate()}>
-          Create
-        </Button>
+          {loading ? 'Creating...' : 'Create'}
+        </button>
       </Group>
     );
-  }, [handleClose, handleCreate, loading]);
+  }, [handleClose, handleCreate, loading, memberIdError]);
 
   return (
     <Modal

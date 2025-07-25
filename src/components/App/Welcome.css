@@ -1,0 +1,124 @@
+/* Welcome page style-guide-based styles */
+
+.welcome-stack {
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 2.5rem 2rem;
+  margin-top: 4rem;
+  margin-bottom: 4rem;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: #0f172a;
+}
+
+.welcome-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #2563eb;
+  margin-bottom: 0.5rem;
+}
+
+.welcome-subtitle {
+  font-size: 1.25rem;
+  font-style: italic;
+  color: #64748b;
+  margin-bottom: 1.5rem;
+}
+
+.welcome-caption {
+  font-size: 0.875rem;
+  font-style: italic;
+  color: #64748b;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.welcome-settings-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #2563eb;
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.welcome-proceed-btn {
+  background: #2563eb;
+  color: #fff;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  font-weight: 500;
+  border: none;
+  transition: background 0.2s;
+  margin-top: 2rem;
+}
+.welcome-proceed-btn:disabled {
+  background: #64748b;
+  color: #fff;
+  opacity: 0.7;
+}
+.welcome-proceed-btn:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.welcome-disconnect-btn {
+  border-radius: 0.5rem;
+  font-weight: 500;
+  border: 1px solid #e5e7eb;
+  color: #ef4444;
+  background: #fff;
+  transition: background 0.2s, color 0.2s;
+}
+.welcome-disconnect-btn:hover {
+  background: #fef2f2;
+  color: #b91c1c;
+} 
+
+.btn {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+  outline: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: #fff;
+}
+.btn-primary:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+.btn-primary:disabled {
+  background: #64748b;
+  color: #fff;
+  opacity: 0.7;
+}
+
+.btn-secondary {
+  background: #fff;
+  color: #2563eb;
+  border: 1px solid #e5e7eb;
+}
+.btn-secondary:hover:not(:disabled) {
+  background: #f8fafc;
+}
+
+.btn-danger {
+  background: #ef4444;
+  color: #fff;
+}
+.btn-danger:hover:not(:disabled) {
+  background: #b91c1c;
+}
+.btn-danger:disabled {
+  background: #fca5a5;
+  color: #fff;
+  opacity: 0.7;
+} 
