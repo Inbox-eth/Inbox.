@@ -26,6 +26,6 @@ Currently there is an issue with syncing conversations. Working on it.
 ## License
 MIT
 
----
+-----
 
 *Built with ❤️ by the INBOX team.*
