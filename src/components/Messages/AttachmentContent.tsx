@@ -49,10 +49,6 @@ export const AttachmentContent: React.FC<AttachmentContentProps> = React.memo(({
   const isVideo = decryptedMimeType?.startsWith('video/');
   const isAudio = decryptedMimeType?.startsWith('audio/');
 
-  console.log('isImage', isImage);
-  console.log('isVideo', isVideo);
-  console.log('isAudio', isAudio);
-
   useEffect(() => {
     let cancelled = false;
     setError(null);
