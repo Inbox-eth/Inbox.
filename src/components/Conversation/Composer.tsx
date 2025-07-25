@@ -31,6 +31,7 @@ export const Composer: React.FC<ComposerProps> = ({ conversation }) => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isDragActive, setIsDragActive] = useState(false);
 
   useEffect(() => {
     if (selectedFile) {
@@ -132,8 +133,50 @@ export const Composer: React.FC<ComposerProps> = ({ conversation }) => {
   const isVideo = mimeType.startsWith("video/");
   const isAudio = mimeType.startsWith("audio/");
 
+  // Drag and drop handlers
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragActive(true);
+  };
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragActive(false);
+  };
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragActive(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      const error = validateFile(file);
+      if (error) {
+        setFileError(error);
+        setSelectedFile(null);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+        return;
+      }
+      setFileError(null);
+      setSelectedFile(file);
+    }
+  };
+
   return (
-    <Box>
+    <Box
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      style={{
+        width: '100%',
+        border: isDragActive ? "2px dashed var(--mantine-color-blue-5)" : undefined,
+        background: isDragActive ? "var(--mantine-color-blue-0)" : undefined,
+        borderRadius: 8,
+        transition: "border 0.2s, background 0.2s",
+      }}
+    >
       {fileError && (
         <Box p="xs" bg="red.0" style={{ borderBottom: "1px solid var(--mantine-color-red-3)" }}>
           <Text size="sm" c="red">
@@ -185,10 +228,11 @@ export const Composer: React.FC<ComposerProps> = ({ conversation }) => {
       <Group
         align="center"
         gap="xs"
-        flex={1}
         wrap="nowrap"
         p="md"
-        className={classes.root}>
+        className={classes.root}
+        style={{ width: '100%' }}
+      >
         <ActionIcon
           size="lg"
           variant="subtle"
@@ -204,7 +248,7 @@ export const Composer: React.FC<ComposerProps> = ({ conversation }) => {
           disabled={sending}
           size="md"
           placeholder={selectedFile ? "Add a message (optional)..." : "Type a message..."}
-          flex={1}
+          style={{ flex: 1, width: '100%' }}
           value={message}
           onKeyDown={handleKeyDown}
           onChange={(e) => {
