@@ -8,3 +8,8 @@
   font-weight: 400;
   cursor: text;
 }
+
+[data-mantine-color-scheme="dark"] .text {
+  background: #334155;
+  color: #f3f4f6;
+}

@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { RemoteAttachmentCodec, AttachmentCodec } from "@xmtp/content-type-remote-attachment";
 import { ContentTypeAttachment, AttachmentCodec as AttachmentCodecType } from "@xmtp/content-type-remote-attachment";
 import { ContentTypeId } from "@xmtp/content-type-primitives";
+import classes from "./AttachmentContent.module.css";
 
 export type AttachmentContentProps = {
   attachment: RemoteAttachment;
@@ -141,16 +142,7 @@ export const AttachmentContent: React.FC<AttachmentContentProps> = React.memo(({
   };
 
   return (
-    <Box
-      style={{
-        background: '#fff',
-        border: '1px solid #e5e7eb',
-        borderRadius: '1rem',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-        padding: '1.5rem',
-        marginBottom: '1rem',
-      }}
-    >
+    <Box className={classes.container}>
       <Group justify="space-between" align="center">
         <Group gap="sm">
           {getFileIcon()}
@@ -165,20 +157,8 @@ export const AttachmentContent: React.FC<AttachmentContentProps> = React.memo(({
         </Group>
         <Group>
           <button
-            style={{
-              background: '#2563eb',
-              color: '#fff',
-              borderRadius: '0.5rem',
-              padding: '0.5rem 1rem',
-              fontWeight: 500,
-              border: 'none',
-              transition: 'background 0.2s',
-              cursor: 'pointer',
-              opacity: isLoading ? 0.7 : 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
+            className={classes.downloadButton}
+            style={{ opacity: isLoading ? 0.7 : 1 }}
             onClick={handleDownload}
             disabled={isLoading}
           >
@@ -188,11 +168,11 @@ export const AttachmentContent: React.FC<AttachmentContentProps> = React.memo(({
       </Group>
 
       {error && (
-        <Text style={{ background: '#fef2f2', color: '#ef4444', border: '1px solid #ef4444', borderRadius: '0.5rem', padding: '0.75rem 1rem', marginTop: '0.5rem', fontSize: '0.875rem' }}>{error}</Text>
+        <Text className={classes.error}>{error}</Text>
       )}
 
       {previewUrl && isImage && (
-        <Box mt="sm" style={{ borderRadius: 8, overflow: 'hidden', maxWidth: 320, maxHeight: 240, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Box mt="sm" className={classes.previewContainer}>
           <Image
             src={previewUrl}
             alt={attachment.filename || "Attachment preview"}
@@ -202,7 +182,7 @@ export const AttachmentContent: React.FC<AttachmentContentProps> = React.memo(({
         </Box>
       )}
       {previewUrl && isVideo && (
-        <Box mt="sm" style={{ borderRadius: 8, overflow: 'hidden', border: '1px solid #eee', background: '#fafbfc', maxWidth: 320, maxHeight: 240, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Box mt="sm" className={classes.videoContainer}>
           <video
             src={previewUrl}
             controls
@@ -211,7 +191,7 @@ export const AttachmentContent: React.FC<AttachmentContentProps> = React.memo(({
         </Box>
       )}
       {previewUrl && isAudio && (
-        <Box mt="sm" style={{ borderRadius: 8, overflow: 'hidden', maxWidth: 320, maxHeight: 80, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Box mt="sm" className={classes.audioContainer}>
           <audio
             src={previewUrl}
             controls

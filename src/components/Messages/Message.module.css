@@ -9,6 +9,10 @@
   transition: background 0.2s, border 0.2s;
 }
 
+[data-mantine-color-scheme="dark"] .root {
+  color: #f3f4f6;
+}
+
 .root:hover {
   cursor: pointer;
 }

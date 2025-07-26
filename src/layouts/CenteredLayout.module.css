@@ -9,6 +9,10 @@
   font-family: 'Inter', system-ui, sans-serif;
 }
 
+[data-mantine-color-scheme="dark"] .root {
+  background: #0f172a;
+}
+
 .content {
   width: 70ch;
   background: #fff;
@@ -17,6 +21,11 @@
   padding: 2.5rem 2rem;
   margin-top: 4rem;
   margin-bottom: 4rem;
+}
+
+[data-mantine-color-scheme="dark"] .content {
+  background: #18181b;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.32);
 }
 
 @media screen and (max-width: 1080px) {

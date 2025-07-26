@@ -12,8 +12,19 @@
   transition: background 0.2s, border 0.2s;
 }
 
+[data-mantine-color-scheme="dark"] .root {
+  background: #18181b;
+  border: 1px solid #334155;
+  color: #f3f4f6;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.32);
+}
+
 .root:hover {
   background: #f8fafc;
+}
+
+[data-mantine-color-scheme="dark"] .root:hover {
+  background: #232336;
 }
 
 .root:focus {
@@ -24,4 +35,9 @@
 .selected {
   background: #f8fafc;
   border-color: #2563eb;
+}
+
+[data-mantine-color-scheme="dark"] .selected {
+  background: #232336;
+  border-color: #60a5fa;
 }

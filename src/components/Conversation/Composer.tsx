@@ -169,13 +169,7 @@ export const Composer: React.FC<ComposerProps> = ({ conversation }) => {
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      style={{
-        width: '100%',
-        border: isDragActive ? "2px dashed #2563eb" : undefined,
-        background: isDragActive ? "#f8fafc" : undefined,
-        borderRadius: '0.5rem',
-        transition: "border 0.2s, background 0.2s",
-      }}
+      className={`${classes.dragArea} ${isDragActive ? classes.dragAreaActive : ''}`}
     >
       {fileError && (
         <Box className={classes.error}>
@@ -205,10 +199,10 @@ export const Composer: React.FC<ComposerProps> = ({ conversation }) => {
             <Group gap="sm">
               <IconPaperclip size={16} />
               <Box>
-                <div style={{ fontSize: "0.875rem", fontWeight: 500 }}>
+                <div className={classes.fileName}>
                   {selectedFile.name}
                 </div>
-                <div style={{ fontSize: "0.75rem", color: "#64748b" }}>
+                <div className={classes.fileInfo}>
                   {formatFileSize(selectedFile.size)} • {selectedFile.type || "Unknown type"}
                 </div>
               </Box>

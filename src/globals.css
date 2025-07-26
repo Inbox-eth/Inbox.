@@ -2,3 +2,29 @@
   --mantine-spacing-xxs: calc(0.5rem * var(--mantine-scale));
   --mantine-spacing-xxxs: calc(0.25rem * var(--mantine-scale));
 }
+
+/* Prevent flash of light background in dark mode */
+html {
+  background-color: #f8fafc;
+  color: #0f172a;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+html[data-mantine-color-scheme="dark"] {
+  background-color: #0f172a;
+  color: #f3f4f6;
+}
+
+body {
+  background-color: inherit;
+  color: inherit;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+}
+
+#root {
+  background-color: inherit;
+  color: inherit;
+  min-height: 100vh;
+}

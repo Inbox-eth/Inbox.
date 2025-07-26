@@ -2,6 +2,10 @@
   background: #f8fafc;
 }
 
+[data-mantine-color-scheme="dark"] .root {
+  background: #18181b;
+}
+
 .root > * {
   padding-top: 1rem;
 }
